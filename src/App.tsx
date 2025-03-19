@@ -10,6 +10,7 @@ import Matches from "./pages/Matches";
 import Stades from "./pages/Stades";
 import Equipes from "./pages/Equipes";
 import NotFound from "./pages/NotFound";
+import CompetitionBanner from "./components/CompetitionBanner";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <CompetitionBanner />
         <AnimatePresence mode="wait">
           <Routes>
             <Route path="/" element={<Index />} />

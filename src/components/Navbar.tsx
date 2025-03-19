@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Trophy } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -41,7 +41,10 @@ const Navbar = () => {
       )}
     >
       <nav className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-caf-green via-caf-red to-caf-gold rounded-full flex items-center justify-center shadow-md">
+            <Trophy size={20} className="text-white" />
+          </div>
           <div className="flex flex-col items-start">
             <span className="text-xl font-bold text-caf-green">CAN</span>
             <span className="text-sm font-medium tracking-wider -mt-1 text-caf-dark">MAROC 2025</span>

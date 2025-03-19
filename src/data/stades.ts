@@ -28,6 +28,19 @@ export const stades: Stade[] = [
     anneeConstruction: 1955
   },
   {
+    id: "stade-moulay-abdellah",
+    nom: "Stade Moulay Abdellah",
+    ville: "Rabat",
+    capacite: 52000,
+    image: "https://images.unsplash.com/photo-1556159992-e189f8e50104?q=80&w=2070&auto=format&fit=crop",
+    description: "Le Stade Moulay Abdellah est le stade principal de la capitale Rabat, où l'équipe nationale du Maroc dispute la plupart de ses matches. Rénové pour la CAN 2025, il offre une expérience exceptionnelle aux supporters.",
+    coordonnees: {
+      lat: 33.9716,
+      lng: -6.8498
+    },
+    anneeConstruction: 1983
+  },
+  {
     id: "stade-ibn-batouta",
     nom: "Stade Ibn Batouta",
     ville: "Tanger",

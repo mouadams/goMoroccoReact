@@ -1,4 +1,3 @@
-
 import { equipes } from "./equipes";
 import { stades } from "./stades";
 
@@ -33,7 +32,7 @@ export const matches: Match[] = [
     id: "1",
     equipe1: getEquipeId("Maroc"),
     equipe2: getEquipeId("Angola"),
-    stade: getStadeId("Complexe Sportif Mohammed V"),
+    stade: getStadeId("Stade Moulay Abdellah"),
     date: "2025-01-10",
     heure: "20:00",
     phase: "Groupe",
@@ -53,7 +52,7 @@ export const matches: Match[] = [
     id: "3",
     equipe1: getEquipeId("Maroc"),
     equipe2: getEquipeId("Burkina Faso"),
-    stade: getStadeId("Complexe Sportif Mohammed V"),
+    stade: getStadeId("Stade Moulay Abdellah"),
     date: "2025-01-14",
     heure: "20:00",
     phase: "Groupe",
@@ -83,7 +82,7 @@ export const matches: Match[] = [
     id: "6",
     equipe1: getEquipeId("Maroc"),
     equipe2: getEquipeId("Sénégal"),
-    stade: getStadeId("Complexe Sportif Mohammed V"),
+    stade: getStadeId("Stade Moulay Abdellah"),
     date: "2025-01-19",
     heure: "20:00",
     phase: "Groupe",
@@ -405,7 +404,7 @@ export const matches: Match[] = [
     id: "37",
     equipe1: "1er Groupe A",
     equipe2: "3e Groupe C/D/E",
-    stade: getStadeId("Complexe Sportif Mohammed V"),
+    stade: getStadeId("Stade Moulay Abdellah"),
     date: "2025-01-27",
     heure: "17:00",
     phase: "Huitièmes"
@@ -548,7 +547,7 @@ export const matches: Match[] = [
     id: "52",
     equipe1: "Vainqueur 1/2 1",
     equipe2: "Vainqueur 1/2 2",
-    stade: getStadeId("Complexe Sportif Mohammed V"),
+    stade: getStadeId("Stade Moulay Abdellah"),
     date: "2025-02-09",
     heure: "20:00",
     phase: "Finale"
