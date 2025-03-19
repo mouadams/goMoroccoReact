@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Matches from "./pages/Matches";
 import Stades from "./pages/Stades";
 import Equipes from "./pages/Equipes";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import CompetitionBanner from "./components/CompetitionBanner";
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/stades" element={<Stades />} />
             <Route path="/stades/:id" element={<Stades />} />
             <Route path="/equipes" element={<Equipes />} />
+            <Route path="/admin" element={<Dashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
