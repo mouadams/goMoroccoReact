@@ -7,17 +7,20 @@ import StadeCard from '@/components/StadeCard';
 import MatchCard from '@/components/MatchCard';
 import { stades } from '@/data/stades';
 import { matches } from '@/data/matches';
+import { hotels } from '@/data/hotels';
 import { useParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, ArrowLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import StadeHotels from '@/components/StadeHotels';
 
 const StadeDetail = () => {
   const { id } = useParams<{ id: string }>();
   const stade = stades.find(s => s.id === id);
   const stadeMatches = matches.filter(m => m.stade === id);
+  const stadeHotels = hotels.filter(h => h.stadeId === id);
   
   if (!stade) {
     return (
@@ -97,22 +100,33 @@ const StadeDetail = () => {
               </div>
             </motion.div>
             
-            {/* Matchs dans ce stade */}
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Matchs joués dans ce stade</h2>
+            {/* Tabs for Matches and Hotels */}
+            <Tabs defaultValue="matches" className="mb-12">
+              <TabsList className="mb-6">
+                <TabsTrigger value="matches">Matchs</TabsTrigger>
+                <TabsTrigger value="hotels">Hôtels à proximité</TabsTrigger>
+              </TabsList>
               
-              {stadeMatches.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {stadeMatches.map(match => (
-                    <MatchCard key={match.id} match={match} />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                  <p className="text-gray-500">Aucun match prévu dans ce stade pour le moment.</p>
-                </div>
-              )}
-            </div>
+              <TabsContent value="matches">
+                <h2 className="text-2xl font-bold mb-6">Matchs joués dans ce stade</h2>
+                
+                {stadeMatches.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {stadeMatches.map(match => (
+                      <MatchCard key={match.id} match={match} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                    <p className="text-gray-500">Aucun match prévu dans ce stade pour le moment.</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="hotels">
+                <StadeHotels hotels={stadeHotels} />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
