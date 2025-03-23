@@ -5,9 +5,13 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StadeCard from '@/components/StadeCard';
 import MatchCard from '@/components/MatchCard';
-import { stades } from '@/data/stades';
-import { matches } from '@/data/matches';
-import { hotels } from '@/data/hotels';
+// import { stades } from '@/data/stades';
+import {stades} from '../api';
+// import { matches } from '@/data/matches';
+// import { hotels } from '@/data/hotels';
+
+import { hotels } from '../api';
+import { matches } from '../api';
 import { useParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, ArrowLeft } from 'lucide-react';
@@ -18,9 +22,11 @@ import StadeHotels from '@/components/StadeHotels';
 
 const StadeDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const stade = stades.find(s => s.id === id);
-  const stadeMatches = matches.filter(m => m.stade === id);
-  const stadeHotels = hotels.filter(h => h.stadeId === id);
+
+  const stade = stades.find(s => s.nom.toLowerCase().replace(/\s+/g, "-") === id);
+  const stadeId = stade ? stade.id : null;
+  const stadeMatches = stadeId ? matches.filter(m => m.stadeId === stadeId) : [];
+  const stadeHotels = stadeId ? hotels.filter(h => h.stadeId === stadeId) : [];
   
   if (!stade) {
     return (
@@ -87,7 +93,7 @@ const StadeDetail = () => {
                       
                       <div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">Année de construction</div>
-                        <div className="font-medium">{stade.anneeConstruction}</div>
+                        <div className="font-medium">{stade.annee_construction}</div>
                       </div>
                       
                       <div>

@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { MapPin, Users } from 'lucide-react';
-import { Stade } from '@/data/stades';
+// import { Stade } from '@/data/stades';
+import { Stade } from '../types/stade';
+
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -48,7 +50,7 @@ const StadeCard: React.FC<StadeCardProps> = ({ stade }) => {
         </p>
         
         <Button asChild variant="outline" className="w-full rounded-lg">
-          <Link to={`/stades/${stade.id}`}>
+          <Link to={`/stades/${stade.nom.toLocaleLowerCase().replace(/\s+/g, "-")}`}>
             Voir les matchs
           </Link>
         </Button>

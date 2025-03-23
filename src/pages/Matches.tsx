@@ -4,8 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import MatchCard from '@/components/MatchCard';
-import { matches } from '@/data/matches';
-import { stades } from '@/data/stades';
+// import { matches } from '@/data/matches';
+// import { stades } from '@/data/stades';
+import {matches} from '../api';
+import {stades} from '../api';
+import {equipes} from '../api';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, parseISO } from 'date-fns';
@@ -13,6 +16,8 @@ import { fr } from 'date-fns/locale';
 import { Search, Calendar, Flag, MapPin } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+
 
 const groupeMatchesByDate = (matchesList: typeof matches) => {
   const grouped: Record<string, typeof matches> = {};
@@ -45,6 +50,19 @@ const Matches = () => {
   
   const phases = ['Groupe', 'Huitièmes', 'Quarts', 'Demi-finales', 'Match pour la 3e place', 'Finale'];
   const groupes = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  const stadesSelect = [
+    "Tous les stades",
+    "Complexe Sportif Mohammed V",
+    "Stade d'Adrar",
+    "Complexe Sportif de Fès",
+    "Stade Ibn Batouta",
+    "Stade Olympique",
+    "Stade de Marrakech",
+    "Stade Moulay Abdellah",
+    "Stade El Barid",
+    "Stade Moulay Hassan"
+  ]
   
   useEffect(() => {
     let result = [...matches];
@@ -59,21 +77,26 @@ const Matches = () => {
       result = result.filter(m => m.groupe === selectedGroupe);
     }
     
+
     // Filtrer par stade
     if (selectedStade !== 'all') {
-      result = result.filter(m => m.stade === selectedStade);
+      result = result.filter(m => m.stadeId === Number(stadesSelect.findIndex(stade => stade === selectedStade)));
+
     }
     
     // Filtrer par terme de recherche
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter(match => {
-        const stade = stades.find(s => s.id === match.stade);
+        const stade = stades.find(s => s.id === match.stadeId);
+        const equipe1 = equipes.find(e => e.id === match.equipe1);
+        const equipe2 = equipes.find(e => e.id === match.equipe2);
+      console.log(stade);
         return (
-          stade?.nom.toLowerCase().includes(term) ||
-          stade?.ville.toLowerCase().includes(term) ||
-          match.equipe1.toLowerCase().includes(term) ||
-          match.equipe2.toLowerCase().includes(term)
+          (stade?.nom?.toLowerCase() ?? "").includes(term) ||
+          (stade?.ville?.toLowerCase() ?? "").includes(term) ||
+          (equipe1?.nom?.toLowerCase() ?? "").includes(term) ||
+          (equipe2?.nom?.toLowerCase() ?? "").includes(term)
         );
       });
     }
@@ -164,7 +187,7 @@ const Matches = () => {
                     <SelectContent>
                       <SelectItem value="all">Tous les stades</SelectItem>
                       {stades.map(stade => (
-                        <SelectItem key={stade.id} value={stade.id}>{stade.nom}</SelectItem>
+                        <SelectItem key={stade.id} value={stade.nom}>{stade.nom}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Hotel } from '@/data/hotels';
+import { Hotel } from '../types/hotel';
 import HotelCard from './HotelCard';
 import { Bed } from 'lucide-react';
 

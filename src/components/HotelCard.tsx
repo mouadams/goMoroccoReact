@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Star } from 'lucide-react';
-import { Hotel } from '@/data/hotels';
+import { Hotel } from '../types/hotel';
 import {
   Card,
   CardContent,

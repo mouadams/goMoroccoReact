@@ -3,9 +3,14 @@ import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Trophy, Calendar, MapPin } from 'lucide-react';
-import { Match } from '@/data/matches';
-import { equipes } from '@/data/equipes';
-import { stades } from '@/data/stades';
+
+import { Match } from '../types/match';
+
+
+import {stades} from '../api';
+import { equipes } from '../api';
+
+
 import { cn } from '@/lib/utils';
 
 interface MatchCardProps {
@@ -14,9 +19,17 @@ interface MatchCardProps {
 }
 
 const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false }) => {
-  const equipe1 = equipes.find(e => e.id === match.equipe1);
-  const equipe2 = equipes.find(e => e.id === match.equipe2);
-  const stade = stades.find(s => s.id === match.stade);
+ 
+ 
+  const equipe1 = equipes?.find(e => String(e.id) === String(match.equipe1));
+  const equipe2 = equipes?.find(e => String(e.id) === String(match.equipe2));
+  const stade = stades?.find(s => String(s.id) === String(match.stadeId));
+
+
+
+  if (!equipe1 || !equipe2 || !stade) {
+    console.error("Equipe(s) ou stade introuvable(s) !");
+  }
 
   const matchDate = parseISO(match.date);
   const formattedDate = format(matchDate, 'dd MMMM yyyy', { locale: fr });
@@ -120,7 +133,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false }) => {
             <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
               <span className="font-bold text-lg">VS</span>
             </div>
-            {match.termine && (
+            {match.termine !== 0 && (
               <div className="flex space-x-2 text-lg font-bold">
                 <span>{match.score1}</span>
                 <span>-</span>

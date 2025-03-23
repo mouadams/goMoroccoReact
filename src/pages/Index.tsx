@@ -6,9 +6,14 @@ import Hero from '@/components/Hero';
 import MatchCard from '@/components/MatchCard';
 import StadeCard from '@/components/StadeCard';
 import EquipeCard from '@/components/EquipeCard';
-import { matches } from '@/data/matches';
-import { stades } from '@/data/stades';
-import { equipes } from '@/data/equipes';
+// import { matches } from '@/data/matches';
+// import { stades } from '@/data/stades';
+// import { equipes } from '@/data/equipes';
+
+import { matches } from '../api';
+import { stades } from '../api';
+import { equipes } from '../api';
+
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';

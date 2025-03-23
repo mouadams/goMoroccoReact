@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Trophy, Flag } from 'lucide-react';
-import { Equipe } from '@/data/equipes';
+import { Equipe } from '@/types/equipe';
 import { cn } from '@/lib/utils';
 
 interface EquipeCardProps {
