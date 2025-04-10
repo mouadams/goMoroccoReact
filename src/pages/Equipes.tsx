@@ -5,17 +5,28 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EquipeCard from '@/components/EquipeCard';
 // import { equipes } from '@/data/equipes';
-import { equipes } from '../api';
+// import { equipes } from '../api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchEquipes} from '../features/apiSlice';
+import { RootState, AppDispatch } from '../store';
 const Equipes = () => {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const { equipes, loading, error } = useSelector((state: RootState) => state.api);
   const [filteredEquipes, setFilteredEquipes] = useState(equipes);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   
+
+    useEffect(() => {
+      if (!equipes.length) dispatch(fetchEquipes());
+     
+    }, [dispatch, equipes.length]);
+
   useEffect(() => {
     let result = [...equipes];
     
@@ -35,7 +46,10 @@ const Equipes = () => {
     }
     
     setFilteredEquipes(result);
-  }, [activeTab, searchTerm]);
+  }, [activeTab, searchTerm, equipes]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
   
   return (
     <div className="min-h-screen flex flex-col bg-background">

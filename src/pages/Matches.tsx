@@ -6,21 +6,24 @@ import Footer from '@/components/Footer';
 import MatchCard from '@/components/MatchCard';
 // import { matches } from '@/data/matches';
 // import { stades } from '@/data/stades';
-import {matches} from '../api';
-import {stades} from '../api';
-import {equipes} from '../api';
+// import {matches,stades, equipes} from '../api';
+
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Match } from '../types/match';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Search, Calendar, Flag, MapPin } from 'lucide-react';
+import { Search, Calendar} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { fetchStades , fetchEquipes, fetchMatches} from '../features/apiSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
 
 
 
-const groupeMatchesByDate = (matchesList: typeof matches) => {
-  const grouped: Record<string, typeof matches> = {};
+
+const groupeMatchesByDate = (matchesList: Match[]) => {
+  const grouped: Record<string, Match[]> = {};
   
   matchesList.forEach(match => {
     const dateKey = match.date;
@@ -41,6 +44,9 @@ const groupeMatchesByDate = (matchesList: typeof matches) => {
 };
 
 const Matches = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { matches, stades, equipes, loading } = useSelector((state: RootState) => state.api);
+
   const [filteredMatches, setFilteredMatches] = useState(matches);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPhase, setSelectedPhase] = useState('all');
@@ -65,6 +71,13 @@ const Matches = () => {
   ]
   
   useEffect(() => {
+    dispatch(fetchMatches());
+    dispatch(fetchStades());
+    dispatch(fetchEquipes());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!matches.length) return;
     let result = [...matches];
     
     // Filtrer par phase
@@ -103,7 +116,7 @@ const Matches = () => {
     
     setFilteredMatches(result);
     setGroupedMatches(groupeMatchesByDate(result));
-  }, [selectedPhase, selectedGroupe, selectedStade, searchTerm]);
+  }, [matches, stades, equipes, selectedPhase, selectedGroupe, selectedStade, searchTerm]);
   
   return (
     <div className="min-h-screen flex flex-col bg-background">

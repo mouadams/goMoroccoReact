@@ -1,4 +1,4 @@
-import React from 'react';
+import React , { useEffect }from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -10,9 +10,10 @@ import EquipeCard from '@/components/EquipeCard';
 // import { stades } from '@/data/stades';
 // import { equipes } from '@/data/equipes';
 
-import { matches } from '../api';
-import { stades } from '../api';
-import { equipes } from '../api';
+// import { matches , stades , equipes } from '../api';
+import { fetchStades , fetchEquipes, fetchMatches} from '../features/apiSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
 
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,20 @@ const item = {
 };
 
 const Index = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { stades, equipes, matches, loading, error } = useSelector((state: RootState) => state.api);
+
+
+   useEffect(() => {
+      if (!stades.length) dispatch(fetchStades());
+      if (!equipes.length) dispatch(fetchEquipes());
+      if (!matches.length) dispatch(fetchMatches());
+    }, [dispatch, stades.length, equipes.length, matches.length]);
+  
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
+
+  
   // Récupérer les 3 prochains matchs
   const prochainsMatchs = [...matches]
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

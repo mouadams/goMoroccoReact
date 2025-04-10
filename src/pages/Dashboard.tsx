@@ -168,7 +168,7 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-4">
               {matches.slice(0, 5).map((match) => (
-                <div key={match.id} className="flex items-center justify-between border-b pb-2">
+                <div key={match.id} className="flex items-center justify-between pb-2 border-b">
                   <div className="flex items-center space-x-3">
                     <div className="font-medium">
                       {match.equipe1} vs {match.equipe2}
@@ -192,13 +192,13 @@ const Dashboard = () => {
   // Matches section content
   const renderMatchesContent = () => (
     <div className="flex flex-col space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Matches</h1>
           <p className="text-muted-foreground">Gestion des matches de la CAN 2025</p>
         </div>
         <Button onClick={() => handleAddItem('matches')}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un match
+          <Plus className="w-4 h-4 mr-2" /> Ajouter un match
         </Button>
       </div>
       
@@ -210,7 +210,7 @@ const Dashboard = () => {
         <CardContent>
           <div className="space-y-4">
             {matches.map((match) => (
-              <div key={match.id} className="flex items-center justify-between border-b pb-2">
+              <div key={match.id} className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center space-x-3">
                   <div className="font-medium">
                     {match.equipe1} vs {match.equipe2}
@@ -231,13 +231,13 @@ const Dashboard = () => {
   // Stades section content
   const renderStadesContent = () => (
     <div className="flex flex-col space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Stades</h1>
           <p className="text-muted-foreground">Gestion des stades de la CAN 2025</p>
         </div>
         <Button onClick={() => handleAddItem('stades')}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un stade
+          <Plus className="w-4 h-4 mr-2" /> Ajouter un stade
         </Button>
       </div>
       
@@ -249,7 +249,7 @@ const Dashboard = () => {
         <CardContent>
           <div className="space-y-4">
             {stades.map((stade) => (
-              <div key={stade.id} className="flex items-center justify-between border-b pb-2">
+              <div key={stade.id} className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center space-x-3">
                   <div className="font-medium">
                     {stade.nom}
@@ -269,13 +269,13 @@ const Dashboard = () => {
   // Equipes section content
   const renderEquipesContent = () => (
     <div className="flex flex-col space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Équipes</h1>
           <p className="text-muted-foreground">Gestion des équipes de la CAN 2025</p>
         </div>
         <Button onClick={() => handleAddItem('equipes')}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter une équipe
+          <Plus className="w-4 h-4 mr-2" /> Ajouter une équipe
         </Button>
       </div>
       
@@ -287,7 +287,7 @@ const Dashboard = () => {
         <CardContent>
           <div className="space-y-4">
             {equipes.map((equipe) => (
-              <div key={equipe.id} className="flex items-center justify-between border-b pb-2">
+              <div key={equipe.id} className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center space-x-3">
                   <div className="font-medium">
                     {equipe.nom}
@@ -307,13 +307,13 @@ const Dashboard = () => {
   // Utilisateurs section content
   const renderUtilisateursContent = () => (
     <div className="flex flex-col space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Utilisateurs</h1>
           <p className="text-muted-foreground">Gestion des utilisateurs administrateurs</p>
         </div>
         <Button onClick={() => handleAddItem('utilisateurs')}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un utilisateur
+          <Plus className="w-4 h-4 mr-2" /> Ajouter un utilisateur
         </Button>
       </div>
       
@@ -324,7 +324,7 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b pb-2">
+            <div className="flex items-center justify-between pb-2 border-b">
               <div className="flex items-center space-x-3">
                 <div className="font-medium">
                   admin
@@ -343,13 +343,13 @@ const Dashboard = () => {
   // Hotels section content
   const renderHotelsContent = () => (
     <div className="flex flex-col space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Hôtels</h1>
           <p className="text-muted-foreground">Gestion des hôtels partenaires</p>
         </div>
         <Button onClick={() => handleAddItem('hotels')}>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un hôtel
+          <Plus className="w-4 h-4 mr-2" /> Ajouter un hôtel
         </Button>
       </div>
       
@@ -361,7 +361,7 @@ const Dashboard = () => {
         <CardContent>
           <div className="space-y-4">
             {hotels.map((hotel) => (
-              <div key={hotel.id} className="flex items-center justify-between border-b pb-2">
+              <div key={hotel.id} className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center space-x-3">
                   <div className="font-medium">
                     {hotel.nom}
@@ -401,7 +401,7 @@ const Dashboard = () => {
   
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="flex w-full min-h-screen">
         <Sidebar>
           <SidebarHeader>
             <div className="px-2 py-2">
@@ -417,7 +417,7 @@ const Dashboard = () => {
                   isActive={activeSection === 'dashboard'}
                   onClick={() => setActiveSection('dashboard')}
                 >
-                  <Home className="h-4 w-4" />
+                  <Home className="w-4 h-4" />
                   <span>Tableau de bord</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -427,7 +427,7 @@ const Dashboard = () => {
                   isActive={activeSection === 'matches'}
                   onClick={() => setActiveSection('matches')}
                 >
-                  <Calendar className="h-4 w-4" />
+                  <Calendar className="w-4 h-4" />
                   <span>Matches</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -437,7 +437,7 @@ const Dashboard = () => {
                   isActive={activeSection === 'stades'}
                   onClick={() => setActiveSection('stades')}
                 >
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="w-4 h-4" />
                   <span>Stades</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -447,7 +447,7 @@ const Dashboard = () => {
                   isActive={activeSection === 'equipes'}
                   onClick={() => setActiveSection('equipes')}
                 >
-                  <Shield className="h-4 w-4" />
+                  <Shield className="w-4 h-4" />
                   <span>Équipes</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -457,7 +457,7 @@ const Dashboard = () => {
                   isActive={activeSection === 'utilisateurs'}
                   onClick={() => setActiveSection('utilisateurs')}
                 >
-                  <Users className="h-4 w-4" />
+                  <Users className="w-4 h-4" />
                   <span>Utilisateurs</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -467,7 +467,7 @@ const Dashboard = () => {
                   isActive={activeSection === 'hotels'}
                   onClick={() => setActiveSection('hotels')}
                 >
-                  <Hotel className="h-4 w-4" />
+                  <Hotel className="w-4 h-4" />
                   <span>Hotels</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -477,7 +477,7 @@ const Dashboard = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleLogout} tooltip="Déconnexion">
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="w-4 h-4" />
                   <span>Déconnexion</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
