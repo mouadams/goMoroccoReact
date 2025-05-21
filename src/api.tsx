@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 import axios from 'axios';
 import { Stade } from '@/types/stade';
 import { Hotel } from '@/types/hotel';
@@ -28,10 +21,11 @@ export let stades: Stade[] = [];
 export let hotels: Hotel[] = [];
 export let matches: Match[] = [];
 export let equipes: Equipe[] = [];
+export const STORAGE_LINK = 'http://127.0.0.1:8000/storage/';
 
 const fetchStades = async () => {
   try {
-    const response = await API.get("/stades"); // Adjust the endpoint as per your Laravel API
+    const response = await API.get("/api/stades"); // Adjust the endpoint as per your Laravel API
     stades = response.data; // Store data in the exported variable
   } catch (error) {
     console.error("Error fetching stadiums:", error);
@@ -41,7 +35,7 @@ const fetchStades = async () => {
 
 export const fetchEquipes = async () => {
     try {
-      const response = await API.get("/equipes"); // Adjust endpoint as needed
+      const response = await API.get("/api/equipes"); // Adjust endpoint as needed
       equipes = response.data;
     } catch (error) {
       console.error("Error fetching teams:", error);
@@ -51,7 +45,7 @@ export const fetchEquipes = async () => {
   
   export const fetchMatches = async () => {
     try {
-      const response = await API.get("/matches"); // Adjust endpoint as needed
+      const response = await API.get("/api/matches"); // Adjust endpoint as needed
       matches = response.data;
     } catch (error) {
       console.error("Error fetching matches:", error);
@@ -61,7 +55,7 @@ export const fetchEquipes = async () => {
   
   export const fetchHotels = async () => {
     try {
-      const response = await API.get("/hotels"); // Adjust endpoint as needed
+      const response = await API.get("/api/hotels"); // Adjust endpoint as needed
       hotels = response.data;
     } catch (error) {
       console.error("Error fetching hotels:", error);

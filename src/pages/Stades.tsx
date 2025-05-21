@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchStades , fetchHotels, fetchMatches, fetchRestaurants} from '../features/apiSlice';
 import { RootState, AppDispatch } from '../store';
 //import { restaurants } from '@/data/restaurants';
+import { STORAGE_LINK } from '@/api';
 
 
 
@@ -81,7 +82,7 @@ const StadeDetail = () => {
             >
               <div className="relative h-80">
                 <img 
-                  src={stade.image} 
+                  src={stade.image.includes("images/") ?  stade.image : STORAGE_LINK + stade.image} 
                   alt={stade.nom}
                   className="object-cover w-full h-full"
                 />

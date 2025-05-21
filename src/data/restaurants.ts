@@ -1,5 +1,5 @@
 export interface Restaurant {
-    id: string;
+    id: number;
     nom: string;
     cuisine: string;
     description: string;
@@ -16,7 +16,7 @@ export interface Restaurant {
   
   export const restaurants: Restaurant[] = [
     {
-      id: "la-sqala",
+      id: 1,
       nom: "La Sqala",
       description: "Restaurant traditionnel marocain situé dans une ancienne forteresse portugaise avec un magnifique jardin.",
       cuisine: "Marocaine",
@@ -30,7 +30,7 @@ export interface Restaurant {
       telephone: "+212 522 26 09 60"
     },
     {
-      id: "rick-cafe",
+      id: 2,
       nom: "Rick's Café",
       description: "Café-restaurant inspiré du film Casablanca avec une ambiance des années 1940 et une cuisine internationale.",
       cuisine: "Internationale",
@@ -44,7 +44,7 @@ export interface Restaurant {
       telephone: "+212 522 27 42 07"
     },
     {
-      id: "dar-naji",
+      id: 3,
       nom: "Dar Naji",
       description: "Restaurant traditionnel marocain proposant des tagines et couscous dans un cadre authentique.",
       cuisine: "Marocaine",
@@ -58,7 +58,7 @@ export interface Restaurant {
       telephone: "+212 537 70 40 24"
     },
     {
-      id: "le-dhow",
+      id: 4,
       nom: "Le Dhow",
       description: "Restaurant sur un bateau traditionnel amarré sur le fleuve Bouregreg avec vue panoramique.",
       cuisine: "Fusion",
@@ -72,7 +72,7 @@ export interface Restaurant {
       telephone: "+212 537 78 98 89"
     },
     {
-      id: "el-morocco-club",
+      id: 5,
       nom: "El Morocco Club",
       description: "Restaurant chic dans la médina avec une cuisine raffinée et une terrasse avec vue sur la ville.",
       cuisine: "Marocaine moderne",
@@ -86,7 +86,7 @@ export interface Restaurant {
       telephone: "+212 539 33 24 17"
     },
     {
-      id: "le-saveur-de-poisson",
+      id: 6,
       nom: "La Saveur de Poisson",
       description: "Restaurant de fruits de mer avec un menu fixe de poissons frais du jour préparés simplement.",
       cuisine: "Fruits de mer",
@@ -100,7 +100,7 @@ export interface Restaurant {
       telephone: "+212 539 33 63 26"
     },
     {
-      id: "la-chaume",
+      id: 7,
       nom: "La Chaume",
       description: "Restaurant gastronomique français situé dans un jardin luxuriant proposant des plats raffinés.",
       cuisine: "Française",
@@ -114,7 +114,7 @@ export interface Restaurant {
       telephone: "+212 528 82 34 59"
     },
     {
-      id: "le-jardin-d-eau",
+      id: 8,
       nom: "Le Jardin d'Eau",
       description: "Restaurant en plein air avec piscine, proposant une cuisine variée et des grillades dans un cadre relaxant.",
       cuisine: "Internationale",
@@ -128,7 +128,7 @@ export interface Restaurant {
       telephone: "+212 528 84 02 26"
     },
     {
-      id: "al-fassia",
+      id: 9,
       nom: "Al Fassia",
       description: "Restaurant gastronomique marocain réputé, tenu exclusivement par des femmes et offrant des plats traditionnels de Fès.",
       cuisine: "Marocaine",
@@ -142,7 +142,7 @@ export interface Restaurant {
       telephone: "+212 524 43 40 60"
     },
     {
-      id: "le-jardin",
+      id: 10,
       nom: "Le Jardin",
       description: "Restaurant-jardin caché au cœur de la médina proposant une cuisine légère dans un cadre verdoyant.",
       cuisine: "Fusion",
@@ -156,7 +156,7 @@ export interface Restaurant {
       telephone: "+212 524 37 82 95"
     },
     {
-      id: "dar-hatim",
+      id: 11,
       nom: "Dar Hatim",
       description: "Restaurant familial dans une maison traditionnelle, célèbre pour son authentique pastilla et ses tagines.",
       cuisine: "Marocaine",
@@ -170,7 +170,7 @@ export interface Restaurant {
       telephone: "+212 535 74 16 50"
     },
     {
-      id: "riad-rcif",
+      id: 12,
       nom: "Riad Rcif",
       description: "Restaurant sur une terrasse avec vue panoramique sur la médina de Fès, servant des plats locaux et internationaux.",
       cuisine: "Marocaine",
@@ -184,7 +184,7 @@ export interface Restaurant {
       telephone: "+212 535 63 80 42"
     },
     {
-      id: "la-paella",
+      id: 13,
       nom: "La Paella",
       description: "Restaurant de fruits de mer et de spécialités espagnoles avec vue sur le port de pêche.",
       cuisine: "Espagnole",
@@ -198,7 +198,7 @@ export interface Restaurant {
       telephone: "+212 539 91 33 21"
     },
     {
-      id: "cafeteria-miami",
+      id: 14,
       nom: "Cafétéria Miami",
       description: "Restaurant populaire proposant des grillades de poissons frais et des fruits de mer avec vue sur l'océan.",
       cuisine: "Fruits de mer",

@@ -11,6 +11,8 @@ interface StadeCardProps {
   stade: Stade;
 }
 
+import { STORAGE_LINK } from '@/api';
+
 const StadeCard: React.FC<StadeCardProps> = ({ stade }) => {
   return (
     <div className="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-subtle hover:shadow-hover transition-all duration-300 border border-gray-100 dark:border-gray-700">
@@ -19,7 +21,7 @@ const StadeCard: React.FC<StadeCardProps> = ({ stade }) => {
           Chargement de l'image...
         </div>
         <img 
-          src={stade.image} 
+          src={stade.image.includes("images/") ?  stade.image : STORAGE_LINK + stade.image} 
           alt={stade.nom}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-in-out"
           onLoad={(e) => {

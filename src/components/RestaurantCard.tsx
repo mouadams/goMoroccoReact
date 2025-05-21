@@ -16,16 +16,18 @@ import { Badge } from "@/components/ui/badge";
 interface RestaurantCardProps {
   restaurant: Restaurant;
 }
-
+import { STORAGE_LINK } from '@/api';
+// 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
   return (
     <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
       <div className="relative overflow-hidden aspect-video">
         <div className="absolute inset-0 bg-gray-200 animate-pulse">
-          Chargement de l'image...
+          Chargement de l'image..
         </div>
         <img 
-          src={restaurant.image} 
+        loading='lazy'
+          src={restaurant.image.includes("https://") ?  restaurant.image : STORAGE_LINK + restaurant.image}
           alt={restaurant.nom}
           className="object-cover w-full h-full transition-transform duration-500 ease-in-out hover:scale-105"
           onLoad={(e) => {

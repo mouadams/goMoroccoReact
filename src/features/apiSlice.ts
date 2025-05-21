@@ -15,7 +15,7 @@ const API = axios.create({
 
 // Create Async Thunks for fetching data
 export const fetchStades = createAsyncThunk('api/fetchStades', async () => {
-  const response = await API.get<Stade[]>('/stades');
+  const response = await API.get<Stade[]>('/api/stades/');
   return response.data;
 });
 
@@ -25,12 +25,12 @@ export const fetchHotels = createAsyncThunk('api/fetchHotels', async () => {
 });
 
 export const fetchMatches = createAsyncThunk('api/fetchMatches', async () => {
-  const response = await API.get<Match[]>('/matches');
+  const response = await API.get<Match[]>('/api/matches');
   return response.data;
 });
 
 export const fetchEquipes = createAsyncThunk('api/fetchEquipes', async () => {
-  const response = await API.get<Equipe[]>('/equipes');
+  const response = await API.get<Equipe[]>('/api/equipes');
   return response.data;
 });
 

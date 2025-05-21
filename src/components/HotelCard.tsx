@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 interface HotelCardProps {
   hotel: Hotel;
 }
+import { STORAGE_LINK } from '@/api';
 
 const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
   return (
@@ -24,7 +25,7 @@ const HotelCard: React.FC<HotelCardProps> = ({ hotel }) => {
           Chargement de l'image...
         </div>
         <img 
-          src={hotel.image} 
+          src={hotel.image.includes("https://") ?  hotel.image : STORAGE_LINK + hotel.image} 
           alt={hotel.nom}
           className="w-full h-full object-cover transition-transform duration-500 ease-in-out hover:scale-105"
           onLoad={(e) => {
