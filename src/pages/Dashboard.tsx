@@ -59,7 +59,7 @@ type NewMatchData = {
   equipe2: string;
   date: string;
   heure: string;
-  stade: string;
+  stadeId: string;
   phase: "Groupe" | "Huitièmes" | "Quarts" | "Demi-finales" | "Match pour la 3e place" | "Finale";
   groupe?: string;
   score1?: number;
@@ -253,6 +253,9 @@ const Dashboard = () => {
         case 'stade':
           endpoint = `http://127.0.0.1:8000/api/stades/${id}`;
           break;
+        case 'equipe':
+          endpoint = `http://127.0.0.1:8000/api/equipes/${id}`;
+          break;
         default:
           return;
       }
@@ -272,6 +275,9 @@ const Dashboard = () => {
           break;
         case 'stade':
           dispatch(fetchStades());
+          break;
+        case 'equipe':
+          dispatch(fetchEquipes());
           break;
       }
 
@@ -941,11 +947,11 @@ const Dashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle>Liste des Équipes</CardTitle>
-          <CardDescription>Total: {equipesList.length} équipes qualifiées</CardDescription>
+          <CardDescription>Total: {equipesListRedux?.length || 0} équipes qualifiées</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {equipesList.map((equipe) => (
+            {equipesListRedux?.map((equipe) => (
               <div key={equipe.id} className="flex items-center justify-between pb-2 border-b">
                 <div className="flex items-center space-x-3">
                   <div className="font-medium">
@@ -986,6 +992,17 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {showEquipeForm && (
+        <EquipeFormDialog
+          open={showEquipeForm}
+          onOpenChange={setShowEquipeForm}
+          onSubmit={handleAddEquipe}
+          editingEquipe={editingItemId ? equipesListRedux?.find(e => e.id === editingItemId) : null}
+          dialogTitle={editingItemId ? "Modifier une équipe" : "Ajouter une équipe"}
+          submitButtonText={editingItemId ? "Modifier" : "Ajouter"}
+        />
+      )}
     </div>
   );
 
@@ -1263,7 +1280,7 @@ const Dashboard = () => {
     : null;
     
   const editingEquipe = editingItemId
-    ? equipesList.find(equipe => equipe.id === editingItemId)
+    ? equipesListRedux.find(equipe => equipe.id === editingItemId)
     : null;
     
   const editingUser = editingItemId
@@ -1429,7 +1446,7 @@ const Dashboard = () => {
           defaultValues={editingMatch ? {
             equipe1: editingMatch.equipe1,
             equipe2: editingMatch.equipe2,
-            stade: editingMatch.stade,
+            stadeId: editingMatch.stadeId,
             date: editingMatch.date,
             heure: editingMatch.heure,
             phase: editingMatch.phase,
@@ -1472,17 +1489,6 @@ const Dashboard = () => {
           } : undefined}
           dialogTitle={editingStade ? "Modifier un stade" : "Ajouter un stade"}
           submitButtonText={editingStade ? "Modifier" : "Ajouter"}
-        />
-      )}
-
-      {showEquipeForm && (
-        <EquipeFormDialog
-          open={showEquipeForm}
-          onOpenChange={setShowEquipeForm}
-          onSubmit={handleAddEquipe}
-          editingEquipe={editingEquipe}
-          dialogTitle={editingEquipe ? "Modifier une équipe" : "Ajouter une équipe"}
-          submitButtonText={editingEquipe ? "Modifier" : "Ajouter"}
         />
       )}
 

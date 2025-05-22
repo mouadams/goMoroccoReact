@@ -1,4 +1,3 @@
-
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,6 +8,11 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDes
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Equipe } from "@/data/equipes";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
+import { useDispatch } from "react-redux";
+import { fetchEquipes } from "@/features/apiSlice";
+import { AppDispatch } from "@/store";
 
 const formSchema = z.object({
   nom: z.string().min(2, {
@@ -49,6 +53,8 @@ export function EquipeFormDialog({
   dialogTitle,
   submitButtonText
 }: EquipeFormDialogProps) {
+  const { toast } = useToast();
+  const dispatch = useDispatch<AppDispatch>();
   const form = useForm<EquipeFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,27 +68,88 @@ export function EquipeFormDialog({
     }
   });
 
-  function handleSubmit(values: EquipeFormValues) {
-    onSubmit(values);
-    if (!editingEquipe) {
-      form.reset({
-        nom: "",
-        drapeau: "",
-        groupe: "A",
-        confederation: "CAF",
-        abreviation: "",
-        entraineur: "",
-        rang: undefined
-      });
+  async function handleSubmit(values: EquipeFormValues) {
+    try {
+      const equipeData = {
+        nom: values.nom,
+        drapeau: values.drapeau,
+        groupe: values.groupe,
+        confederation: values.confederation,
+        abreviation: values.abreviation || "",
+        entraineur: values.entraineur || "",
+        rang: values.rang || 0,
+        points: 0,
+        joues: 0,
+        gagnes: 0,
+        nuls: 0,
+        perdus: 0,
+        buts_marques: 0,
+        buts_encaisses: 0,
+        difference_buts: 0
+      };
+
+      if (editingEquipe) {
+        await axios.put(`http://127.0.0.1:8000/api/equipes/${editingEquipe.id}`, equipeData);
+        toast({
+          title: "Équipe mise à jour",
+          description: "L'équipe a été mise à jour avec succès.",
+        });
+      } else {
+        await axios.post('http://127.0.0.1:8000/api/equipes/', equipeData);
+        toast({
+          title: "Équipe créée",
+          description: "L'équipe a été créée avec succès.",
+        });
+      }
+      onSubmit(values);
+      form.reset();
+      onOpenChange(false);
+      dispatch(fetchEquipes());
+    } catch (error) {
+      console.error('Failed to save equipe:', error);
+      if (axios.isAxiosError(error) && error.response) {
+        console.error('Server response:', error.response.data);
+        toast({
+          title: "Erreur",
+          description: "Une erreur s'est produite lors de l'opération.",
+          variant: "destructive",
+        });
+      }
     }
-    onOpenChange(false);
   }
+
+  const handleDelete = async () => {
+    if (!editingEquipe) return;
+    
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette équipe ?')) {
+      try {
+        const response = await axios.delete(`http://127.0.0.1:8000/api/equipes/${editingEquipe.id}`);
+        if (response.status === 200 || response.status === 204) {
+          toast({
+            title: "Équipe supprimée",
+            description: "L'équipe a été supprimée avec succès.",
+          });
+          onOpenChange(false);
+          dispatch(fetchEquipes());
+        } else {
+          throw new Error('Failed to delete equipe');
+        }
+      } catch (error) {
+        console.error('Failed to delete equipe:', error);
+        toast({
+          title: "Erreur",
+          description: "Une erreur s'est produite lors de la suppression.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">{dialogTitle}</DialogTitle>
+          <DialogTitle className="mb-4 text-2xl font-bold text-center">{dialogTitle}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -101,7 +168,7 @@ export function EquipeFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="groupe"
@@ -163,7 +230,7 @@ export function EquipeFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="confederation"
@@ -222,8 +289,18 @@ export function EquipeFormDialog({
               )}
             />
 
-            <DialogFooter className="mt-6 flex justify-between gap-2">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border border-gray-300 w-full">
+            <DialogFooter className="flex justify-between gap-2 mt-6">
+              {editingEquipe && (
+                <Button 
+                  type="button" 
+                  variant="destructive" 
+                  onClick={handleDelete}
+                  className="w-full"
+                >
+                  Supprimer
+                </Button>
+              )}
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="w-full border border-gray-300">
                 Annuler
               </Button>
               <Button type="submit" className="w-full">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,6 +94,7 @@ export function MatchFormDialog({
   };
 
   const handleChange = (field: keyof MatchFormValues, value: any) => {
+    console.log('handleChange', field, value, typeof value);
     setFormValues(prev => ({
       ...prev,
       [field]: value
@@ -139,11 +140,52 @@ export function MatchFormDialog({
       // Format time to 24-hour
       const formattedTime = convertTo24Hour(formValues.heure);
 
+      // Before conversion - log values
+      console.log("Form values before conversion:", {
+        stadeId: formValues.stadeId,
+        equipe1: formValues.equipe1,
+        equipe2: formValues.equipe2,
+        typeStadeId: typeof formValues.stadeId,
+        typeEquipe1: typeof formValues.equipe1,
+        typeEquipe2: typeof formValues.equipe2
+      });
+
+      // Get the numeric IDs using our mappings
+      const stadeId = Number(formValues.stadeId);
+      const equipe1Id = Number(formValues.equipe1);
+      const equipe2Id = Number(formValues.equipe2);
+
+      // After conversion - check for NaN
+      console.log("Values after mapping lookup:", {
+        stadeId,
+        equipe1Id,
+        equipe2Id,
+        isNaN_stadeId: isNaN(Number(stadeId)),
+        isNaN_equipe1: isNaN(Number(equipe1Id)),
+        isNaN_equipe2: isNaN(Number(equipe2Id))
+      });
+
+      // Find actual equipes and stade objects for better error messages
+      const stade = stades.find(s => Number(s.id) === stadeId);
+      const equipe1Obj = equipes.find(e => Number(e.id) === equipe1Id);
+      const equipe2Obj = equipes.find(e => Number(e.id) === equipe2Id);
+
+      // Verify values are valid numbers before submitting
+      if (!stadeId || isNaN(Number(stadeId))) {
+        throw new Error(`Stade invalide: ${formValues.stadeId}`);
+      }
+      if (!equipe1Id || isNaN(Number(equipe1Id))) {
+        throw new Error(`Équipe 1 invalide: ${formValues.equipe1}`);
+      }
+      if (!equipe2Id || isNaN(Number(equipe2Id))) {
+        throw new Error(`Équipe 2 invalide: ${formValues.equipe2}`);
+      }
+
       // Prepare data for API submission
       const apiMatchData = {
-        stadeId: Number(formValues.stadeId),
-        equipe1: Number(formValues.equipe1),
-        equipe2: Number(formValues.equipe2),
+        stadeId: stadeId,
+        equipe1: equipe1Id,
+        equipe2: equipe2Id,
         date: formattedDate,
         heure: formattedTime,
         phase: formValues.phase,
@@ -171,7 +213,6 @@ export function MatchFormDialog({
         const formattedErrors: MatchFormErrors = {};
         
         Object.keys(apiErrors).forEach(key => {
-          // Handle potential field name mapping from API
           const normalizedKey = key.replace(/_id$/, '') as keyof MatchFormValues;
           formattedErrors[normalizedKey] = apiErrors[key][0];
         });
@@ -206,7 +247,7 @@ export function MatchFormDialog({
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px] overflow-y-auto">
                   {equipes.map((equipe) => (
-                    <SelectItem key={equipe.id} value={equipe.id.toString()}>
+                    <SelectItem key={equipe.id} value={String(equipe.id)}>
                       {equipe.nom}
                     </SelectItem>
                   ))}
@@ -226,7 +267,7 @@ export function MatchFormDialog({
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px] overflow-y-auto">
                   {equipes.map((equipe) => (
-                    <SelectItem key={equipe.id} value={equipe.id.toString()}>
+                    <SelectItem key={equipe.id} value={String(equipe.id)}>
                       {equipe.nom}
                     </SelectItem>
                   ))}
@@ -248,7 +289,7 @@ export function MatchFormDialog({
               </SelectTrigger>
               <SelectContent>
                 {stades.map((stade) => (
-                  <SelectItem key={stade.id} value={stade.id.toString()}>
+                  <SelectItem key={stade.id} value={String(stade.id)}>
                     {stade.nom}, {stade.ville}
                   </SelectItem>
                 ))}
