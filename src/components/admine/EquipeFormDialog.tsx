@@ -89,17 +89,39 @@ export function EquipeFormDialog({
       };
 
       if (editingEquipe) {
-        await axios.put(`http://127.0.0.1:8000/api/equipes/${editingEquipe.id}`, equipeData);
-        toast({
-          title: "Équipe mise à jour",
-          description: "L'équipe a été mise à jour avec succès.",
+        const response = await fetch(`http://127.0.0.1:8000/api/equipes/${editingEquipe.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(equipeData),
         });
+
+        if (response.status === 200 || response.status === 204) {
+          toast({
+            title: "Équipe mise à jour",
+            description: "L'équipe a été mise à jour avec succès.",
+          });
+        } else {
+          throw new Error('Failed to update equipe');
+        }
       } else {
-        await axios.post('http://127.0.0.1:8000/api/equipes/', equipeData);
-        toast({
-          title: "Équipe créée",
-          description: "L'équipe a été créée avec succès.",
+        const response = await fetch('http://127.0.0.1:8000/api/equipes/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(equipeData),
         });
+
+        if (response.status === 200 || response.status === 201) {
+          toast({
+            title: "Équipe créée",
+            description: "L'équipe a été créée avec succès.",
+          });
+        } else {
+          throw new Error('Failed to create equipe');
+        }
       }
       onSubmit(values);
       form.reset();

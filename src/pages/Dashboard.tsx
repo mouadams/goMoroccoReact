@@ -186,6 +186,7 @@ const Dashboard = () => {
     { id: 'demo', name: 'Utilisateur Démo', email: 'demo@can2025.ma', role: 'viewer', isActive: true }
   ]);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingStade, setEditingStade] = useState<Stade | null>(null);
   const { toast } = useToast();
   const dispatch = useDispatch<AppDispatch>();
   const { 
@@ -296,14 +297,16 @@ const Dashboard = () => {
   };
 
   const handleEdit = (type: string, id: string) => {
+    if (type === 'stade') {
+      const stadeToEdit = stadesListRedux.find(s => String(s.id) === String(id));
+      setEditingStade(stadeToEdit || null);
+      setShowStadeForm(true);
+    }
     setEditingItemId(id);
     
     switch (type) {
       case 'match':
         setShowMatchForm(true);
-        break;
-      case 'stade':
-        setShowStadeForm(true);
         break;
       case 'equipe':
         setShowEquipeForm(true);
@@ -507,7 +510,11 @@ const Dashboard = () => {
     }
   };
 
-  const handleAddStade = async (stadeData: NewStadeData) => {
+  const handleAddStade = async (values: Partial<NewStadeData>) => {
+    if (!values.nom || !values.ville || !values.capacite || !values.description || !values.anneeConstruction || !values.lat || !values.lng) {
+      // Optionally show an error or return early
+      return;
+    }
     try {
       if (editingItemId) {
         // Update existing stade
@@ -516,7 +523,7 @@ const Dashboard = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(stadeData),
+          body: JSON.stringify(values),
         });
 
         if (!response.ok) {
@@ -527,7 +534,7 @@ const Dashboard = () => {
         
         toast({
           title: "Stade modifié",
-          description: `Le stade ${stadeData.nom} a été modifié avec succès.`,
+          description: `Le stade ${values.nom} a été modifié avec succès.`,
         });
       } else {
         // Create new stade
@@ -536,7 +543,7 @@ const Dashboard = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(stadeData),
+          body: JSON.stringify(values),
         });
 
         if (!response.ok) {
@@ -547,7 +554,7 @@ const Dashboard = () => {
         
         toast({
           title: "Stade ajouté",
-          description: `Le stade ${stadeData.nom} a été ajouté avec succès.`,
+          description: `Le stade ${values.nom} a été ajouté avec succès.`,
         });
       }
       
@@ -1275,8 +1282,17 @@ const Dashboard = () => {
     ? matchesListRedux.find(match => match.id === editingItemId)
     : null;
 
-  const editingStade = editingItemId
+  const editingStadeData = editingItemId
     ? stadesListRedux.find(stade => stade.id === editingItemId)
+    : null;
+
+  // If your stade object uses latitude/longitude:
+  const editingStadeWithLatLng = editingStadeData
+    ? {
+        ...editingStadeData,
+        lat: (editingStadeData as any).lat ?? (editingStadeData as any).latitude ?? 0,
+        lng: (editingStadeData as any).lng ?? (editingStadeData as any).longitude ?? 0,
+      }
     : null;
     
   const editingEquipe = editingItemId
@@ -1465,30 +1481,10 @@ const Dashboard = () => {
         <StadeFormDialog
           isOpen={showStadeForm}
           onClose={() => setShowStadeForm(false)}
-          onSubmit={(values) => {
-            const stadeData: NewStadeData = {
-              nom: values.nom || "",
-              ville: values.ville || "",
-              capacite: values.capacite || 0,
-              image: values.image instanceof File ? values.image : "",
-              description: values.description || "",
-              anneeConstruction: values.anneeConstruction || 0,
-              lat: values.lat || 31.7917,
-              lng: values.lng || -7.0926
-            };
-            handleAddStade(stadeData);
-          }}
-          defaultValues={editingStade ? {
-            nom: editingStade.nom || "",
-            ville: editingStade.ville || "",
-            capacite: editingStade.capacite || 0,
-            description: editingStade.description || "",
-            lat: editingStade.coordonnees?.lat || 31.7917,
-            lng: editingStade.coordonnees?.lng || -7.0926,
-            anneeConstruction: editingStade.anneeConstruction || 0
-          } : undefined}
-          dialogTitle={editingStade ? "Modifier un stade" : "Ajouter un stade"}
-          submitButtonText={editingStade ? "Modifier" : "Ajouter"}
+          onSubmit={handleAddStade as any}
+          editingStade={editingStadeWithLatLng}
+          dialogTitle={editingStadeWithLatLng ? "Modifier un stade" : "Ajouter un stade"}
+          submitButtonText={editingStadeWithLatLng ? "Modifier" : "Ajouter"}
         />
       )}
 

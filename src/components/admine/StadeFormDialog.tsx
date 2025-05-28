@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
 
-// Schema with file upload support
+// Schema with file upload support - make image optional for updates
 const formSchema = z.object({
   nom: z.string().min(3, {
     message: "Le nom doit contenir au moins 3 caractères.",
@@ -27,7 +27,7 @@ const formSchema = z.object({
   ).refine(
     (file) => ["image/jpeg", "image/png", "image/jpg"].includes(file.type),
     "Seuls les fichiers JPEG, PNG et JPG sont acceptés"
-  ),
+  ).optional(),
   description: z.string().min(10, {
     message: "La description doit contenir au moins 10 caractères.",
   }),
@@ -38,11 +38,23 @@ const formSchema = z.object({
 
 type StadeFormValues = z.infer<typeof formSchema>;
 
+interface Stade {
+  id: number;
+  nom: string;
+  ville: string;
+  capacite: number;
+  image?: string;
+  description: string;
+  lat: number;
+  lng: number;
+  anneeConstruction: number;
+}
+
 interface StadeFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit?: (values: StadeFormValues) => void;
-  defaultValues?: Partial<StadeFormValues>;
+  editingStade?: Stade | null;
   dialogTitle: string;
   submitButtonText: string;
   onSuccess?: () => void;
@@ -52,26 +64,56 @@ export function StadeFormDialog({
   isOpen,
   onClose,
   onSubmit,
-  defaultValues = {
-    nom: "",
-    ville: "",
-    capacite: 0,
-    image: undefined,
-    description: "",
-    lat: 31.7917,
-    lng: -7.0926,
-    anneeConstruction: 2000,
-  },
+  editingStade,
   dialogTitle,
   submitButtonText,
   onSuccess,
 }: StadeFormDialogProps) {
   const form = useForm<StadeFormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues as StadeFormValues,
+    defaultValues: {
+      nom: "",
+      ville: "",
+      capacite: 0,
+      image: undefined,
+      description: "",
+      lat: 31.7917,
+      lng: -7.0926,
+      anneeConstruction: 2000,
+    },
   });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  // Reset form when editingStade changes or dialog opens
+  React.useEffect(() => {
+    if (isOpen) {
+      if (editingStade) {
+        form.reset({
+          nom: editingStade.nom || "",
+          ville: editingStade.ville || "",
+          capacite: editingStade.capacite || 0,
+          image: undefined, // Always start with no file selected
+          description: editingStade.description || "",
+          lat: editingStade.lat || 31.7917,
+          lng: editingStade.lng || -7.0926,
+          anneeConstruction: editingStade.anneeConstruction || 2000,
+        });
+      } else {
+        // Reset to default values for new stadium
+        form.reset({
+          nom: "",
+          ville: "",
+          capacite: 0,
+          image: undefined,
+          description: "",
+          lat: 31.7917,
+          lng: -7.0926,
+          anneeConstruction: 2000,
+        });
+      }
+    }
+  }, [editingStade, isOpen, form]);
 
   async function handleSubmit(values: StadeFormValues) {
     setIsSubmitting(true);
@@ -81,20 +123,38 @@ export function StadeFormDialog({
       formData.append("nom", values.nom);
       formData.append("ville", values.ville);
       formData.append("capacite", values.capacite.toString());
-      formData.append("image", values.image);
       formData.append("description", values.description);
       formData.append("latitude", values.lat.toString());
       formData.append("longitude", values.lng.toString());
       formData.append("annee_construction", values.anneeConstruction.toString());
 
-      const response = await axios.post("http://127.0.0.1:8000/api/stades/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          "Accept": "application/json",
-        },
-      });
+      // Only append image if a new one is selected
+      if (values.image) {
+        formData.append("image", values.image);
+      }
 
-      toast.success("Stade créé avec succès");
+      let response;
+      
+      if (editingStade) {
+        // Update existing stadium
+        response = await axios.put(`http://127.0.0.1:8000/api/stades/${editingStade.id}`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Accept": "application/json",
+          },
+        });
+        toast.success("Stade mis à jour avec succès");
+      } else {
+        // Create new stadium
+        response = await axios.post("http://127.0.0.1:8000/api/stades/", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "Accept": "application/json",
+          },
+        });
+        toast.success("Stade créé avec succès");
+      }
+
       form.reset();
       onClose();
       onSuccess?.();
@@ -103,7 +163,7 @@ export function StadeFormDialog({
         onSubmit(values);
       }
     } catch (error) {
-      console.error("Error creating stade:", error);
+      console.error("Error saving stade:", error);
       
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 422) {
@@ -117,7 +177,7 @@ export function StadeFormDialog({
           });
           toast.error("Veuillez corriger les erreurs dans le formulaire");
         } else {
-          toast.error(error.response?.data?.message || "Erreur lors de la création du stade");
+          toast.error(error.response?.data?.message || `Erreur lors de ${editingStade ? 'la mise à jour' : 'la création'} du stade`);
         }
       } else {
         toast.error("Une erreur inattendue est survenue");
@@ -127,11 +187,35 @@ export function StadeFormDialog({
     }
   }
 
+  const handleDelete = async () => {
+    if (!editingStade) return;
+    
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce stade ?')) {
+      try {
+        setIsSubmitting(true);
+        const response = await axios.delete(`http://127.0.0.1:8000/api/stades/${editingStade.id}`);
+        
+        if (response.status === 200 || response.status === 204) {
+          toast.success("Stade supprimé avec succès");
+          onClose();
+          onSuccess?.();
+        } else {
+          throw new Error('Failed to delete stade');
+        }
+      } catch (error) {
+        console.error('Failed to delete stade:', error);
+        toast.error("Erreur lors de la suppression du stade");
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-center mb-4">{dialogTitle}</DialogTitle>
+          <DialogTitle className="mb-4 text-2xl font-bold text-center">{dialogTitle}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -150,7 +234,7 @@ export function StadeFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
                 name="ville"
@@ -193,6 +277,11 @@ export function StadeFormDialog({
                       onChange={(e) => field.onChange(e.target.files?.[0])}
                     />
                   </FormControl>
+                  {editingStade && (
+                    <FormDescription>
+                      Laissez vide pour conserver l'image actuelle
+                    </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
@@ -216,7 +305,7 @@ export function StadeFormDialog({
               )}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <FormField
                 control={form.control}
                 name="anneeConstruction"
@@ -262,12 +351,23 @@ export function StadeFormDialog({
               />
             </div>
 
-            <DialogFooter className="mt-6 flex justify-between gap-2">
+            <DialogFooter className="flex justify-between gap-2 mt-6">
+              {editingStade && (
+                <Button 
+                  type="button" 
+                  variant="destructive" 
+                  onClick={handleDelete}
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  Supprimer
+                </Button>
+              )}
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={onClose} 
-                className="border border-gray-300 w-full"
+                className="w-full border border-gray-300"
                 disabled={isSubmitting}
               >
                 Annuler
