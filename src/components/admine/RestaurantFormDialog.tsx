@@ -27,6 +27,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { fetchRestaurants } from '@/features/apiSlice';
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "@/store"; // adjust the path if needed
 
 const formSchema = z.object({
   nom: z.string().min(2, { message: "Le nom doit contenir au moins 2 caractères" }),
@@ -93,46 +96,51 @@ export default function RestaurantFormDialog({
     },
   });
 
+  const dispatch = useDispatch<AppDispatch>();
+
   useEffect(() => {
-    if (editingRestaurant) {
-      form.reset({
-        nom: editingRestaurant.nom || "",
-        description: editingRestaurant.description || "",
-        cuisine: editingRestaurant.cuisine || "",
-        prixMoyen: editingRestaurant.prixMoyen?.toString() || "",
-        adresse: editingRestaurant.adresse || "",
-        distance: editingRestaurant.distance?.toString() || "",
-        note: editingRestaurant.note || 4,
-        stadeId: Number(editingRestaurant.stadeId) || 0,
-        horaires: editingRestaurant.horaires || "",
-        telephone: editingRestaurant.telephone || "",
-        vegOptions: editingRestaurant.vegOptions || false,
-      });
-      
-      // Show existing image if available
-      if (editingRestaurant.image) {
-        setImagePreview(editingRestaurant.image.startsWith('http') 
-          ? editingRestaurant.image 
-          : `http://127.0.0.1:8000/storage/${editingRestaurant.image}`);
+    if (open) {
+      if (editingRestaurant) {
+        form.reset({
+          nom: editingRestaurant.nom || "",
+          description: editingRestaurant.description || "",
+          cuisine: editingRestaurant.cuisine || "",
+          prixMoyen: editingRestaurant.prixMoyen?.toString() || "",
+          adresse: editingRestaurant.adresse || "",
+          distance: editingRestaurant.distance?.toString() || "",
+          note: editingRestaurant.note || 4,
+          stadeId: Number(editingRestaurant.stadeId) || 0,
+          horaires: editingRestaurant.horaires || "",
+          telephone: editingRestaurant.telephone || "",
+          vegOptions: editingRestaurant.vegOptions || false,
+          image: undefined,
+        });
+        if (editingRestaurant.image) {
+          setImagePreview(
+            editingRestaurant.image.startsWith('http')
+              ? editingRestaurant.image
+              : `http://127.0.0.1:8000/storage/${editingRestaurant.image}`
+          );
+        }
+      } else {
+        form.reset({
+          nom: "",
+          description: "",
+          cuisine: "",
+          prixMoyen: "",
+          adresse: "",
+          distance: "",
+          note: 4,
+          image: undefined,
+          stadeId: 0,
+          horaires: "",
+          telephone: "",
+          vegOptions: false,
+        });
+        setImagePreview(null);
       }
-    } else {
-      form.reset({
-        nom: "",
-        description: "",
-        cuisine: "",
-        prixMoyen: "",
-        adresse: "",
-        distance: "",
-        note: 4,
-        image: undefined,
-        stadeId: 0,
-        horaires: "",
-        telephone: "",
-        vegOptions: false,
-      });
-      setImagePreview(null);
     }
-  }, [editingRestaurant, form]);
+  }, [open, editingRestaurant]);
 
   // Handle image preview when a new file is selected
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,24 +159,23 @@ export default function RestaurantFormDialog({
 
   const handleSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
-    
+
     try {
       // Validate numeric fields
       const prix = parseFloat(data.prixMoyen);
       const dist = parseFloat(data.distance);
-      
+
       if (isNaN(prix) || prix <= 0) {
         form.setError('prixMoyen', { message: "Le prix moyen doit être un nombre positif" });
         throw new Error("Le prix moyen doit être un nombre positif");
       }
-      
+
       if (isNaN(dist) || dist <= 0) {
         form.setError('distance', { message: "La distance doit être un nombre positif" });
         throw new Error("La distance doit être un nombre positif");
       }
 
       const apiUrl = "http://127.0.0.1:8000/api/restaurants";
-      
       const formData = new FormData();
       formData.append('nom', data.nom.trim());
       formData.append('description', data.description.trim());
@@ -178,30 +185,26 @@ export default function RestaurantFormDialog({
       formData.append('distance', dist.toString());
       formData.append('note', Math.round(data.note).toString());
       formData.append('stadeId', data.stadeId.toString());
-      
-      // Optional fields
       if (data.horaires?.trim()) formData.append('horaires', data.horaires.trim());
       if (data.telephone?.trim()) formData.append('telephone', data.telephone.trim());
       formData.append('vegOptions', data.vegOptions ? '1' : '0');
-      
+
       // Handle image upload
       if (data.image instanceof FileList && data.image.length > 0) {
         const file = data.image[0];
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          throw new Error("L'image ne doit pas dépasser 5MB");
-        }
-        // Validate file type
-        if (!['image/jpeg', 'image/png', 'image/jpg', 'image/gif'].includes(file.type)) {
-          throw new Error("Format d'image non supporté. Utilisez JPG, PNG ou GIF");
-        }
         formData.append('image', file);
       }
-      
+
       let response;
-      
-      if (editingRestaurant) {
-        response = await axios.put(
+
+      if (editingRestaurant && editingRestaurant.id) {
+        // Debug log to check the restaurant ID
+        console.log('Updating restaurant with ID:', editingRestaurant.id);
+        console.log('Full URL will be:', `${apiUrl}/${editingRestaurant.id}`);
+        
+        // Use POST with _method=PUT for Laravel
+        formData.append('_method', 'PUT');
+        response = await axios.post(
           `${apiUrl}/${editingRestaurant.id}`,
           formData,
           {
@@ -211,11 +214,11 @@ export default function RestaurantFormDialog({
             }
           }
         );
-      } else {
+      } else if (!editingRestaurant) {
+        // Creating new restaurant
         if (!(data.image instanceof FileList) || data.image.length === 0) {
           throw new Error("L'image est requise pour créer un nouveau restaurant");
         }
-        
         response = await axios.post(
           apiUrl,
           formData,
@@ -226,6 +229,9 @@ export default function RestaurantFormDialog({
             }
           }
         );
+      } else {
+        // editingRestaurant exists but has no ID
+        throw new Error("ID du restaurant manquant pour la mise à jour");
       }
 
       if (onSubmit && response.data.data) {
@@ -234,19 +240,27 @@ export default function RestaurantFormDialog({
 
       form.reset();
       onOpenChange(false);
+      dispatch(fetchRestaurants());
       onSuccess?.();
-      
+
       toast({
         title: editingRestaurant ? "Restaurant modifié" : "Restaurant ajouté",
-        description: editingRestaurant 
+        description: editingRestaurant
           ? `Le restaurant ${data.nom} a été modifié avec succès.`
           : `Le restaurant ${data.nom} a été ajouté avec succès.`,
       });
     } catch (error) {
       console.error('Error:', error);
-      
+
       let errorMessage = "Une erreur s'est produite";
       if (axios.isAxiosError(error)) {
+        console.error('Axios error details:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          url: error.config?.url,
+          method: error.config?.method
+        });
+        
         if (error.response?.status === 422) {
           // Handle validation errors from server
           const errors = error.response.data.errors;

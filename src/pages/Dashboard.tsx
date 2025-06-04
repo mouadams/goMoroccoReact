@@ -257,6 +257,9 @@ const Dashboard = () => {
         case 'equipe':
           endpoint = `http://127.0.0.1:8000/api/equipes/${id}`;
           break;
+        case 'match':
+          endpoint = `http://127.0.0.1:8000/api/matches/${id}`;
+          break;
         default:
           return;
       }
@@ -280,8 +283,11 @@ const Dashboard = () => {
         case 'equipe':
           dispatch(fetchEquipes());
           break;
+        case 'match':
+          dispatch(fetchMatches());
+          break;
       }
-
+      
       toast({
         title: "Supprimé avec succès",
         description: `L'élément a été supprimé avec succès.`,
@@ -330,59 +336,58 @@ const Dashboard = () => {
 
   const handleHotelUpdate = async (updatedHotel: DashboardHotel | null) => {
     try {
-      if (editingItemId) {
-        // Update existing hotel
-        const response = await fetch(`http://127.0.0.1:8000/api/hotels/${editingItemId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedHotel),
-        });
+      if (updatedHotel === null) {
+        // Handle deletion
+        if (editingItemId) {
+          const response = await axios.delete(`http://127.0.0.1:8000/api/hotels/${editingItemId}`);
 
-        if (!response.ok) {
-          throw new Error('Failed to update hotel');
+          if (response.data.success) {
+            // Refresh hotels list
+            dispatch(fetchHotels());
+            
+            toast({
+              title: "Hôtel supprimé",
+              description: "L'hôtel a été supprimé avec succès.",
+            });
+          } else {
+            throw new Error('Failed to delete hotel');
+          }
         }
-
-        // Refresh hotels list
-        dispatch(fetchHotels());
-        
-        toast({
-          title: "Hôtel modifié",
-          description: `L'hôtel ${updatedHotel?.nom} a été modifié avec succès.`,
-        });
       } else {
-        // Create new hotel
-        const response = await fetch('http://127.0.0.1:8000/api/hotels/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedHotel),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create hotel');
+        // Update the local state immediately with the new data
+        const updatedHotels = hotelsListRedux.map(hotel => 
+          hotel.id === updatedHotel.id ? updatedHotel : hotel
+        );
+        
+        // If it's a new hotel, add it to the list
+        if (!hotelsListRedux.find(hotel => hotel.id === updatedHotel.id)) {
+          updatedHotels.push(updatedHotel);
         }
-
-        // Refresh hotels list
+        
+        // Update the Redux state
+        dispatch({ type: 'api/setHotels', payload: updatedHotels });
+        
+        // Also fetch from the server to ensure we have the latest data
         dispatch(fetchHotels());
         
-        toast({
-          title: "Hôtel ajouté",
-          description: `L'hôtel ${updatedHotel?.nom} a été ajouté avec succès.`,
-        });
+        setShowHotelForm(false);
+        setEditingItemId(null);
       }
-      
-      setShowHotelForm(false);
-      setEditingItemId(null);
     } catch (error) {
       console.error('Error:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur s'est produite lors de l'opération.",
-        variant: "destructive",
-      });
+      if (axios.isAxiosError(error) && error.response?.status === 422) {
+        toast({
+          title: "Erreur de validation",
+          description: "Veuillez vérifier les informations saisies.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Une erreur s'est produite lors de l'opération.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -490,10 +495,10 @@ const Dashboard = () => {
       } else {
         const resultAction = await dispatch(createMatch(matchData));
         if (createMatch.fulfilled.match(resultAction)) {
-          toast({
-            title: "Match ajouté",
-            description: `Le match a été ajouté avec succès.`,
-          });
+        toast({
+          title: "Match ajouté",
+          description: `Le match a été ajouté avec succès.`,
+        });
         } else {
           console.error('Create match error:', resultAction);
         }
@@ -883,10 +888,10 @@ const Dashboard = () => {
               <div className="w-8 h-8 border-b-2 border-gray-900 rounded-full animate-spin"></div>
             </div>
           ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
               {stadesListRedux.map((stade) => (
-                <div key={stade.id} className="flex items-center justify-between pb-2 border-b">
-                  <div className="flex items-center space-x-3">
+              <div key={stade.id} className="flex items-center justify-between pb-2 border-b">
+                <div className="flex items-center space-x-3">
                     {stade.image && (
                       <img 
                         src={stade.image.includes("images/") ? stade.image : STORAGE_LINK + stade.image} 
@@ -894,42 +899,42 @@ const Dashboard = () => {
                         className="object-cover w-12 h-12 rounded-md"
                       />
                     )}
-                    <div className="font-medium">
-                      {stade.nom}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="secondary">{stade.ville}</Badge>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit('stade', stade.id)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Cette action ne peut pas être annulée. Voulez-vous vraiment supprimer ce stade ?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Annuler</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete('stade', stade.id)}>
-                              Confirmer
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                  <div className="font-medium">
+                    {stade.nom}
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="secondary">{stade.ville}</Badge>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit('stade', stade.id)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action ne peut pas être annulée. Voulez-vous vraiment supprimer ce stade ?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete('stade', stade.id)}>
+                            Confirmer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
           )}
         </CardContent>
       </Card>
@@ -1111,7 +1116,7 @@ const Dashboard = () => {
               <div className="w-8 h-8 border-b-2 border-gray-900 rounded-full animate-spin"></div>
             </div>
           ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
               {hotelsListRedux.map((hotel: DashboardHotel) => (
                 <div key={hotel.id} className="flex items-center justify-between pb-4 border-b">
                   <div className="flex items-center space-x-4">
@@ -1127,9 +1132,9 @@ const Dashboard = () => {
                       <div className="text-sm text-muted-foreground">
                         {hotel.ville} • {hotel.etoiles} étoiles • {hotel.prix}
                       </div>
-                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                </div>
+                <div className="flex items-center space-x-2">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -1143,11 +1148,11 @@ const Dashboard = () => {
                       onClick={() => handleDeleteHotel(hotel.id)}
                     >
                       <Trash className="w-4 h-4" />
-                    </Button>
-                  </div>
+                        </Button>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
           )}
         </CardContent>
       </Card>
@@ -1189,10 +1194,10 @@ const Dashboard = () => {
               <div className="w-8 h-8 border-b-2 border-gray-900 rounded-full animate-spin"></div>
             </div>
           ) : (
-            <div className="space-y-4">
+          <div className="space-y-4">
               {restaurantsListRedux.map((restaurant) => (
-                <div key={restaurant.id} className="flex items-center justify-between pb-2 border-b">
-                  <div className="flex items-center space-x-3">
+              <div key={restaurant.id} className="flex items-center justify-between pb-2 border-b">
+                <div className="flex items-center space-x-3">
                     {restaurant.image && (
                       <img 
                         src={restaurant.image.includes("https://") ? restaurant.image : STORAGE_LINK + restaurant.image} 
@@ -1200,43 +1205,43 @@ const Dashboard = () => {
                         className="object-cover w-12 h-12 rounded-md"
                       />
                     )}
-                    <div className="font-medium">
-                      {restaurant.nom}
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge>{restaurant.cuisine}</Badge>
-                    <Badge variant="outline">{restaurant.stadeId}</Badge>
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit('restaurant', restaurant.id)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-destructive">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Cette action ne peut pas être annulée. Voulez-vous vraiment supprimer ce restaurant ?
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Annuler</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete('restaurant', restaurant.id)}>
-                              Confirmer
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                  <div className="font-medium">
+                    {restaurant.nom}
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center space-x-2">
+                  <Badge>{restaurant.cuisine}</Badge>
+                  <Badge variant="outline">{restaurant.stadeId}</Badge>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit('restaurant', restaurant.id)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action ne peut pas être annulée. Voulez-vous vraiment supprimer ce restaurant ?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete('restaurant', restaurant.id)}>
+                            Confirmer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
           )}
         </CardContent>
       </Card>

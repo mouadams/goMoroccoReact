@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { stades } from "@/data/stades";
-import { equipes } from "@/data/equipes";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store";
-import { createMatch, updateMatch } from "@/redux/matchesSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { createMatch, updateMatch, deleteMatch } from "@/redux/matchesSlice";
+import { fetchMatches } from "@/features/apiSlice";
+import { useToast } from "@/hooks/use-toast";
 
 type MatchFormValues = {
   equipe1: string;
@@ -71,6 +71,9 @@ export function MatchFormDialog({
   const [errors, setErrors] = useState<MatchFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
+  const stades = useSelector((state: RootState) => state.api.stades);
+  const equipes = useSelector((state: RootState) => state.api.equipes);
+  const { toast } = useToast();
 
   const convertTo24Hour = (timeString: string): string => {
     if (!timeString) return "17:00";
@@ -201,6 +204,11 @@ export function MatchFormDialog({
         await dispatch(updateMatch({ id: editingMatchId, matchData: apiMatchData as any })).unwrap();
       } else {
         await dispatch(createMatch(apiMatchData as any)).unwrap();
+        dispatch(fetchMatches());
+        toast({
+          title: "Match ajouté",
+          description: "Le match a été ajouté avec succès.",
+        });
       }
       
       setFormValues(defaultValues);
@@ -238,63 +246,63 @@ export function MatchFormDialog({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Équipe 1</label>
-              <Select
+                      <Select
                 value={formValues.equipe1}
                 onValueChange={(value) => handleChange("equipe1", value)}
-              >
+                      >
                 <SelectTrigger className={errors.equipe1 ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Sélectionner une équipe" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px] overflow-y-auto">
-                  {equipes.map((equipe) => (
+                          <SelectValue placeholder="Sélectionner une équipe" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px] overflow-y-auto">
+                          {equipes.map((equipe) => (
                     <SelectItem key={equipe.id} value={String(equipe.id)}>
-                      {equipe.nom}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                              {equipe.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
               {errors.equipe1 && <p className="text-xs text-red-500">{errors.equipe1}</p>}
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Équipe 2</label>
-              <Select
+                      <Select
                 value={formValues.equipe2}
                 onValueChange={(value) => handleChange("equipe2", value)}
-              >
+                      >
                 <SelectTrigger className={errors.equipe2 ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Sélectionner une équipe" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px] overflow-y-auto">
-                  {equipes.map((equipe) => (
+                          <SelectValue placeholder="Sélectionner une équipe" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px] overflow-y-auto">
+                          {equipes.map((equipe) => (
                     <SelectItem key={equipe.id} value={String(equipe.id)}>
-                      {equipe.nom}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                              {equipe.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
               {errors.equipe2 && <p className="text-xs text-red-500">{errors.equipe2}</p>}
             </div>
-          </div>
+            </div>
 
           {/* Stadium selection */}
           <div className="space-y-2">
             <label className="text-sm font-medium">Stade</label>
-            <Select
+                    <Select
               value={formValues.stadeId}
               onValueChange={(value) => handleChange("stadeId", value)}
-            >
+                    >
               <SelectTrigger className={errors.stadeId ? "border-red-500" : ""}>
-                <SelectValue placeholder="Sélectionner un stade" />
-              </SelectTrigger>
-              <SelectContent>
-                {stades.map((stade) => (
+                        <SelectValue placeholder="Sélectionner un stade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {stades.map((stade) => (
                   <SelectItem key={stade.id} value={String(stade.id)}>
-                    {stade.nom}, {stade.ville}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                            {stade.nom}, {stade.ville}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
             {errors.stadeId && <p className="text-xs text-red-500">{errors.stadeId}</p>}
           </div>
 
@@ -321,63 +329,63 @@ export function MatchFormDialog({
               />
               {errors.heure && <p className="text-xs text-red-500">{errors.heure}</p>}
             </div>
-          </div>
+            </div>
 
           {/* Phase and Group selection */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Phase</label>
-              <Select
+                      <Select
                 value={formValues.phase}
                 onValueChange={(value) => handleChange("phase", value)}
-              >
+                      >
                 <SelectTrigger className={errors.phase ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Sélectionner une phase" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Groupe">Phase de groupes</SelectItem>
-                  <SelectItem value="Huitièmes">Huitièmes de finale</SelectItem>
-                  <SelectItem value="Quarts">Quarts de finale</SelectItem>
-                  <SelectItem value="Demi-finales">Demi-finales</SelectItem>
-                  <SelectItem value="Match pour la 3e place">Match pour la 3e place</SelectItem>
-                  <SelectItem value="Finale">Finale</SelectItem>
-                </SelectContent>
-              </Select>
+                          <SelectValue placeholder="Sélectionner une phase" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Groupe">Phase de groupes</SelectItem>
+                          <SelectItem value="Huitièmes">Huitièmes de finale</SelectItem>
+                          <SelectItem value="Quarts">Quarts de finale</SelectItem>
+                          <SelectItem value="Demi-finales">Demi-finales</SelectItem>
+                          <SelectItem value="Match pour la 3e place">Match pour la 3e place</SelectItem>
+                          <SelectItem value="Finale">Finale</SelectItem>
+                        </SelectContent>
+                      </Select>
               {errors.phase && <p className="text-xs text-red-500">{errors.phase}</p>}
             </div>
 
             {formValues.phase === "Groupe" && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Groupe</label>
-                <Select
+                        <Select
                   value={formValues.groupe || "A"}
                   onValueChange={(value) => handleChange("groupe", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un groupe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="A">Groupe A</SelectItem>
-                    <SelectItem value="B">Groupe B</SelectItem>
-                    <SelectItem value="C">Groupe C</SelectItem>
-                    <SelectItem value="D">Groupe D</SelectItem>
-                    <SelectItem value="E">Groupe E</SelectItem>
-                    <SelectItem value="F">Groupe F</SelectItem>
-                  </SelectContent>
-                </Select>
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner un groupe" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="A">Groupe A</SelectItem>
+                            <SelectItem value="B">Groupe B</SelectItem>
+                            <SelectItem value="C">Groupe C</SelectItem>
+                            <SelectItem value="D">Groupe D</SelectItem>
+                            <SelectItem value="E">Groupe E</SelectItem>
+                            <SelectItem value="F">Groupe F</SelectItem>
+                          </SelectContent>
+                        </Select>
               </div>
-            )}
-          </div>
+              )}
+            </div>
 
           {/* Match finished switch */}
           <div className="flex flex-row items-center justify-between p-4 border rounded-lg">
-            <div className="space-y-0.5">
+                  <div className="space-y-0.5">
               <label className="text-base font-medium">Match terminé</label>
               <p className="text-sm text-gray-500">
-                Indiquer si le match est terminé pour afficher le score
+                      Indiquer si le match est terminé pour afficher le score
               </p>
-            </div>
-            <Switch
+                  </div>
+                    <Switch
               checked={formValues.termine}
               onCheckedChange={(checked) => handleChange("termine", checked)}
             />
@@ -411,18 +419,50 @@ export function MatchFormDialog({
                   }}
                 />
               </div>
-            </div>
-          )}
+              </div>
+            )}
 
           <DialogFooter className="flex justify-between gap-2 mt-6">
             <Button type="button" variant="outline" onClick={onClose} className="w-full border border-gray-300">
-              Annuler
-            </Button>
+                Annuler
+              </Button>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? "En cours..." : submitButtonText}
+              </Button>
+            </DialogFooter>
+          </form>
+
+          {editingMatchId && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={async () => {
+                if (window.confirm("Êtes-vous sûr de vouloir supprimer ce match ?")) {
+                  setIsSubmitting(true);
+                  try {
+                    await dispatch(deleteMatch(editingMatchId)).unwrap();
+                    dispatch(fetchMatches());
+                    toast({
+                      title: "Match supprimé",
+                      description: "Le match a été supprimé avec succès.",
+                    });
+                    onClose();
+                  } catch (error) {
+                    toast({
+                      title: "Erreur",
+                      description: "Une erreur s'est produite lors de la suppression.",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }
+              }}
+              disabled={isSubmitting}
+            >
+              Supprimer
             </Button>
-          </DialogFooter>
-        </form>
+          )}
       </DialogContent>
     </Dialog>
   );
