@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -20,14 +19,16 @@ import { cn } from '@/lib/utils';
 interface MatchCardProps {
   match: Match;
   compact?: boolean;
+  className?: string;
+  onClick?: () => void;
 }
 
-const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false }) => {
+const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false, className, onClick }) => {
  
  
   const equipe1 = equipes?.find(e => String(e.id) === String(match.equipe1));
   const equipe2 = equipes?.find(e => String(e.id) === String(match.equipe2));
-  const stade = stades?.find(s => String(s.id) === String(match.stadeId));
+  const stade = stades?.find(s => String(s.id) === String(match.stade));
 
 
 
@@ -41,7 +42,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false }) => {
 
   if (compact) {
     return (
-      <div className="overflow-hidden transition-all duration-300 bg-white dark:bg-gray-800 rounded-xl shadow-subtle hover:shadow-hover">
+      <div className={cn("overflow-hidden transition-all duration-300 bg-white dark:bg-gray-800 rounded-xl shadow-subtle hover:shadow-hover", className)} onClick={onClick}>
         <div className="p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
@@ -89,7 +90,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false }) => {
   }
 
   return (
-    <div className="overflow-hidden transition-all duration-300 bg-white border border-gray-100 dark:bg-gray-800 rounded-xl shadow-subtle hover:shadow-hover dark:border-gray-700">
+    <div className={cn("overflow-hidden transition-all duration-300 bg-white border border-gray-100 dark:bg-gray-800 rounded-xl shadow-subtle hover:shadow-hover dark:border-gray-700", className)} onClick={onClick}>
       <div className={cn(
         "p-2 text-center text-white text-xs font-medium",
         match.phase === "Groupe" ? "bg-caf-green" :
@@ -137,7 +138,7 @@ const MatchCard: React.FC<MatchCardProps> = ({ match, compact = false }) => {
             <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full dark:bg-gray-700">
               <span className="text-lg font-bold">VS</span>
             </div>
-            {match.termine !== 0 && (
+            {match.termine && (
               <div className="flex space-x-2 text-lg font-bold">
                 <span>{match.score1}</span>
                 <span>-</span>

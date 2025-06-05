@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -93,15 +92,14 @@ const Matches = () => {
 
     // Filtrer par stade
     if (selectedStade !== 'all') {
-      result = result.filter(m => m.stadeId === Number(stadesSelect.findIndex(stade => stade === selectedStade)));
-
+      result = result.filter(m => m.stade === selectedStade);
     }
     
     // Filtrer par terme de recherche
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       result = result.filter(match => {
-        const stade = stades.find(s => s.id === match.stadeId);
+        const stade = stades.find(s => s.nom === match.stade);
         const equipe1 = equipes.find(e => e.id === match.equipe1);
         const equipe2 = equipes.find(e => e.id === match.equipe2);
       console.log(stade);
@@ -119,32 +117,32 @@ const Matches = () => {
   }, [matches, stades, equipes, selectedPhase, selectedGroupe, selectedStade, searchTerm]);
   
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
       
       <div className="pt-24 pb-8 bg-gradient-to-b from-caf-green/10 to-transparent">
-        <div className="container mx-auto px-6 md:px-10">
+        <div className="container px-6 mx-auto md:px-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl font-bold mb-4">Calendrier des Matchs</h1>
-            <p className="text-gray-600 dark:text-gray-300 mb-8">
+            <h1 className="mb-4 text-4xl font-bold">Calendrier des Matchs</h1>
+            <p className="mb-8 text-gray-600 dark:text-gray-300">
               Consultez tous les matchs de la Coupe d'Afrique des Nations 2025 qui se tiendra au Maroc.
             </p>
           </div>
         </div>
       </div>
       
-      <main className="flex-grow container mx-auto px-6 md:px-10 pb-16">
-        <div className="max-w-7xl mx-auto">
+      <main className="container flex-grow px-6 pb-16 mx-auto md:px-10">
+        <div className="mx-auto max-w-7xl">
           {/* Filtre et Recherche */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-subtle p-6 mb-10"
+            className="p-6 mb-10 bg-white dark:bg-gray-800 rounded-xl shadow-subtle"
           >
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2" size={16} />
                 <Input
                   placeholder="Rechercher par équipe, stade, ville..."
                   className="pl-10"
@@ -153,7 +151,7 @@ const Matches = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div>
                   <Select
                     value={selectedPhase}
@@ -209,7 +207,7 @@ const Matches = () => {
             </div>
             
             {filteredMatches.length === 0 && (
-              <div className="mt-6 text-center py-8">
+              <div className="py-8 mt-6 text-center">
                 <p className="text-gray-500 dark:text-gray-400">Aucun match ne correspond à vos critères de recherche.</p>
                 <Button
                   variant="outline"
@@ -239,7 +237,7 @@ const Matches = () => {
                 className="mb-12"
               >
                 <div className="flex items-center mb-6">
-                  <div className="bg-caf-green text-white p-2 rounded-full mr-3">
+                  <div className="p-2 mr-3 text-white rounded-full bg-caf-green">
                     <Calendar size={18} />
                   </div>
                   <h2 className="text-xl font-bold capitalize">
@@ -247,7 +245,7 @@ const Matches = () => {
                   </h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {matchs.map(match => (
                     <MatchCard key={match.id} match={match} />
                   ))}

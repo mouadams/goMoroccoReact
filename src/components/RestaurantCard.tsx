@@ -1,8 +1,6 @@
-
-import React from 'react';
-import { Star, MapPin, Clock, Phone, Utensils } from 'lucide-react';
-//import { Restaurant } from '@/data/restaurants';
 import { Restaurant } from '@/types/restaurant';
+import { MapPin, Phone, Globe, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
 import {
   Card,
   CardContent,
@@ -16,86 +14,48 @@ import { Badge } from "@/components/ui/badge";
 interface RestaurantCardProps {
   restaurant: Restaurant;
 }
-import { STORAGE_LINK } from '@/api';
-// 
-const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) => {
+
+export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   return (
-    <Card className="flex flex-col h-full overflow-hidden transition-all duration-300 hover:shadow-lg">
-      <div className="relative overflow-hidden aspect-video">
-        <div className="absolute inset-0 bg-gray-200 animate-pulse">
-          Chargement de l'image..
-        </div>
-        <img 
-        loading='lazy'
-          src={restaurant.image.includes("https://") ?  restaurant.image : STORAGE_LINK + restaurant.image}
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="overflow-hidden transition-all duration-300 bg-white shadow-lg dark:bg-gray-800 rounded-xl hover:shadow-xl"
+    >
+      <div className="relative h-48">
+        <img
+          src={restaurant.image}
           alt={restaurant.nom}
-          className="object-cover w-full h-full transition-transform duration-500 ease-in-out hover:scale-105"
-          onLoad={(e) => {
-            e.currentTarget.classList.remove('opacity-0');
-            e.currentTarget.classList.add('opacity-100');
-            const loadingDiv = e.currentTarget.previousElementSibling;
-            if (loadingDiv) loadingDiv.classList.add('hidden');
-          }}
+          className="object-cover w-full h-full"
         />
-        <div className="absolute top-3 right-3">
-          <Badge className="text-black bg-white dark:bg-black dark:text-white">
-            {restaurant.prixMoyen}
-          </Badge>
+        <div className="absolute px-3 py-1 text-sm font-medium text-white rounded-full top-4 right-4 bg-caf-red">
+          {restaurant.cuisine}
         </div>
       </div>
       
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between">
-          <CardTitle className="text-lg">{restaurant.nom}</CardTitle>
-          <div className="flex items-center">
-            <Star size={14} className="mr-1 text-yellow-400 fill-yellow-400" />
-            <span className="text-sm font-medium">{restaurant.note}</span>
-          </div>
-        </div>
-        <CardDescription className="flex items-center gap-1">
-          <Utensils size={14} className="text-gray-500" />
-          <span className="text-sm">{restaurant.cuisine}</span>
-        </CardDescription>
-      </CardHeader>
-      
-      <CardContent className="flex-grow pb-2">
-        <p className="mb-3 text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
-          {restaurant.description}
-        </p>
+      <div className="p-6">
+        <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">{restaurant.nom}</h3>
         
-        <div className="space-y-2 text-sm">
-          <a 
-            href={`https://maps.google.com/?q=${encodeURIComponent(restaurant.adresse)}`}
-            target="_blank"
-            rel="noopener noreferrer" 
-            className="flex items-center text-gray-600 transition-colors dark:text-gray-300 hover:text-caf-red"
-          >
-            <MapPin size={14} className="mr-2 text-caf-red shrink-0" />
-            <span className="line-clamp-1">{restaurant.adresse}</span>
-          </a>
-          <div className="flex items-center text-gray-600 dark:text-gray-300">
-            <Clock size={14} className="mr-2 text-caf-green shrink-0" />
-            <span className="line-clamp-1">{restaurant.horaires}</span>
+        <div className="space-y-3 text-gray-600 dark:text-gray-300">
+          <div className="flex items-start">
+            <MapPin className="flex-shrink-0 w-5 h-5 mt-1 mr-2 text-caf-red" />
+            <p className="text-sm">{restaurant.adresse}</p>
           </div>
+          
+          {restaurant.telephone && (
+            <div className="flex items-center">
+              <Phone className="w-5 h-5 mr-2 text-caf-red" />
+              <p className="text-sm">{restaurant.telephone}</p>
+            </div>
+          )}
+          
+          {restaurant.horaires && (
+            <div className="flex items-center">
+              <Clock className="w-5 h-5 mr-2 text-caf-red" />
+              <p className="text-sm">{restaurant.horaires}</p>
+            </div>
+          )}
         </div>
-      </CardContent>
-      
-      <CardFooter className="pt-0">
-        <div className="flex items-center justify-between w-full">
-          <span className="text-sm font-medium text-caf-red">
-            À {restaurant.distance}
-          </span>
-          <a 
-            href={`tel:${restaurant.telephone.replace(/\s+/g, '')}`} 
-            className="flex items-center text-sm font-medium text-caf-green hover:underline"
-          >
-            <Phone size={14} className="mr-1" />
-            Appeler
-          </a>
-        </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </motion.div>
   );
-};
-
-export default RestaurantCard;
+}

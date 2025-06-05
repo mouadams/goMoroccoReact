@@ -338,14 +338,14 @@ const Dashboard = () => {
     try {
       if (updatedHotel === null) {
         // Handle deletion
-        if (editingItemId) {
+      if (editingItemId) {
           const response = await axios.delete(`http://127.0.0.1:8000/api/hotels/${editingItemId}`);
 
           if (response.data.success) {
             // Refresh hotels list
             dispatch(fetchHotels());
-            
-            toast({
+        
+        toast({
               title: "Hôtel supprimé",
               description: "L'hôtel a été supprimé avec succès.",
             });
@@ -403,11 +403,11 @@ const Dashboard = () => {
 
       // Refresh hotels list
       dispatch(fetchHotels());
-      
-      toast({
+        
+        toast({
         title: "Hôtel supprimé",
         description: "L'hôtel a été supprimé avec succès.",
-      });
+        });
     } catch (error) {
       console.error('Error deleting hotel:', error);
       toast({

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
@@ -23,6 +22,10 @@ import { fetchStades , fetchHotels, fetchMatches, fetchRestaurants} from '../fea
 import { RootState, AppDispatch } from '../store';
 //import { restaurants } from '@/data/restaurants';
 import { STORAGE_LINK } from '@/api';
+import StadeActivities from '@/components/StadeActivities';
+import { activities } from '@/data/activities';
+
+
 
 
 
@@ -34,10 +37,10 @@ const StadeDetail = () => {
 
 
   const stade = stades.find(s => s.nom.toLowerCase().replace(/\s+/g, "-") === id);
-  const stadeId = stade ? stade.id : null;
-  const stadeMatches = stadeId ? matches.filter(m => m.stadeId === stadeId) : [];
-  const stadeHotels = stadeId ? hotels.filter(h => h.stadeId === stadeId) : [];
-  const stadeRestaurants = stadeId ? restaurants.filter(r => r.stadeId === stadeId) : [];
+  const stadeId = stade ? String(stade.id) : '';
+  const stadeMatches = stadeId ? matches.filter(m => String(m.stade) === stadeId) : [];
+  const stadeHotels = stadeId ? hotels.filter(h => String(h.stadeId) === stadeId) : [];
+  const stadeRestaurants = stadeId ? restaurants.filter(r => String(r.stadeId) === stadeId) : [];
   
   useEffect(() => {
     if (!stades.length) dispatch(fetchStades());
@@ -114,7 +117,7 @@ const StadeDetail = () => {
                       
                       <div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">Année de construction</div>
-                        <div className="font-medium">{stade.annee_construction}</div>
+                        <div className="font-medium">{stade.anneeConstruction}</div>
                       </div>
                       
                       <div>
@@ -133,6 +136,7 @@ const StadeDetail = () => {
                 <TabsTrigger value="matches">Matchs</TabsTrigger>
                 <TabsTrigger value="hotels">Hôtels à proximité</TabsTrigger>
                 <TabsTrigger value="restaurants">Restaurants à proximité</TabsTrigger>
+                <TabsTrigger value="activities">Activités à proximité</TabsTrigger>
               </TabsList>
               
               <TabsContent value="matches">
@@ -152,11 +156,15 @@ const StadeDetail = () => {
               </TabsContent>
               
               <TabsContent value="hotels">
-                <StadeHotels hotels={stadeHotels} />
+                <StadeHotels hotels={stadeHotels} stadeId={stadeId} />
               </TabsContent>
 
               <TabsContent value="restaurants">
-                <StadeRestaurants restaurants={stadeRestaurants} />
+                <StadeRestaurants restaurants={stadeRestaurants} stadeId={stadeId} />
+              </TabsContent>
+
+              <TabsContent value="activities">
+                <StadeActivities activities={activities} stadeId={id || ''} />
               </TabsContent>
             </Tabs>
           </div>

@@ -24,7 +24,7 @@ export interface Restaurant {
       adresse: "Boulevard des Almohades, Casablanca",
       distance: "15 minutes à pied",
       note: 4.7,
-      image: "https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?q=80&w=2052&auto=format&fit=crop",
+      image: "images/La-Sqala.jpg",
       stadeId: "complexe-mohamed-v",
       horaires: "Tous les jours de 12h à 23h",
       telephone: "+212 522 26 09 60"
@@ -38,7 +38,7 @@ export interface Restaurant {
       adresse: "248 Boulevard Sour Jdid, Casablanca",
       distance: "20 minutes en voiture",
       note: 4.5,
-      image: "https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=2071&auto=format&fit=crop",
+      image: "images/ricks-cafe.jpg",
       stadeId: "complexe-mohamed-v",
       horaires: "Tous les jours de 18h à minuit",
       telephone: "+212 522 27 42 07"
@@ -52,7 +52,7 @@ export interface Restaurant {
       adresse: "Avenue Hassan II, Rabat",
       distance: "10 minutes à pied",
       note: 4.6,
-      image: "https://images.unsplash.com/photo-1541518763069-e9785dbcd0b6?q=80&w=2070&auto=format&fit=crop",
+      image: "images/darEnnaji.jpg",
       stadeId: "stade-moulay-abdellah",
       horaires: "Tous les jours de 11h à 23h",
       telephone: "+212 537 70 40 24"
@@ -66,7 +66,7 @@ export interface Restaurant {
       adresse: "Marina de Salé, Rabat",
       distance: "15 minutes en voiture",
       note: 4.4,
-      image: "https://images.unsplash.com/photo-1502301197179-65228ab57f78?q=80&w=2070&auto=format&fit=crop",
+      image: "images/le-dhow.jpg",
       stadeId: "stade-moulay-abdellah",
       horaires: "Tous les jours de 12h à minuit",
       telephone: "+212 537 78 98 89"
@@ -80,7 +80,7 @@ export interface Restaurant {
       adresse: "2 Rue Dar El Baroud, Tanger",
       distance: "10 minutes en voiture",
       note: 4.8,
-      image: "https://images.unsplash.com/photo-1621275471769-e6aa344546d5?q=80&w=2070&auto=format&fit=crop",
+      image: "images/el-morocco-club.jpg",
       stadeId: "stade-ibn-batouta",
       horaires: "Tous les jours de 19h à 1h",
       telephone: "+212 539 33 24 17"
@@ -94,7 +94,7 @@ export interface Restaurant {
       adresse: "2 Rue Escalier, Tanger",
       distance: "15 minutes en voiture",
       note: 4.6,
-      image: "https://images.unsplash.com/photo-1579684947550-22e945225d9a?q=80&w=2080&auto=format&fit=crop",
+      image: "images/le-saveur-de-poisson.jpg",
       stadeId: "stade-ibn-batouta",
       horaires: "Tous les jours de 12h à 16h et 19h à 22h",
       telephone: "+212 539 33 63 26"
@@ -122,7 +122,7 @@ export interface Restaurant {
       adresse: "Avenue Mohammed V, Agadir",
       distance: "15 minutes en voiture",
       note: 4.3,
-      image: "https://images.unsplash.com/photo-1535850452425-140ee4a8dbfb?q=80&w=2070&auto=format&fit=crop",
+      image: "images/la-terrasse.jpg",
       stadeId: "stade-adrar",
       horaires: "Tous les jours de 11h à 23h",
       telephone: "+212 528 84 02 26"
@@ -136,7 +136,7 @@ export interface Restaurant {
       adresse: "55 Boulevard Zerktouni, Marrakech",
       distance: "15 minutes en voiture",
       note: 4.7,
-      image: "https://images.unsplash.com/photo-1540914124281-342587941389?q=80&w=2074&auto=format&fit=crop",
+      image: "images/al-fassia.jpg",
       stadeId: "stade-marrakech",
       horaires: "Tous les jours de 12h à 14h30 et 19h30 à 22h30, fermé le mardi",
       telephone: "+212 524 43 40 60"
@@ -150,7 +150,7 @@ export interface Restaurant {
       adresse: "32 Rue El Jeld, Marrakech",
       distance: "20 minutes en voiture",
       note: 4.5,
-      image: "https://images.unsplash.com/photo-1486485764572-92b96f21882a?q=80&w=2070&auto=format&fit=crop",
+      image: "images/le-jardin.jpg",
       stadeId: "stade-marrakech",
       horaires: "Tous les jours de 10h à 23h",
       telephone: "+212 524 37 82 95"
@@ -164,7 +164,7 @@ export interface Restaurant {
       adresse: "19 Derb Ezaouia Fandek Lihoudi, Fès",
       distance: "15 minutes en voiture",
       note: 4.8,
-      image: "https://images.unsplash.com/photo-1528137871618-79d2761e3fd5?q=80&w=2070&auto=format&fit=crop",
+      image: "imaes/dar-hatim.jpg",
       stadeId: "stade-fes",
       horaires: "Tous les jours de 12h à 14h30 et 19h à 22h",
       telephone: "+212 535 74 16 50"
@@ -178,7 +178,7 @@ export interface Restaurant {
       adresse: "1 Derb Ahl Tadla, Fès",
       distance: "15 minutes en voiture",
       note: 4.5,
-      image: "https://images.unsplash.com/photo-1560964645-9e888cac58cb?q=80&w=2070&auto=format&fit=crop",
+      image: "images/riad-rcif.jpg",
       stadeId: "stade-fes",
       horaires: "Tous les jours de 12h à 22h",
       telephone: "+212 535 63 80 42"
@@ -192,7 +192,7 @@ export interface Restaurant {
       adresse: "Boulevard Mohamed V, Larache",
       distance: "10 minutes à pied",
       note: 4.4,
-      image: "https://images.unsplash.com/photo-1534080564583-6be75777b70a?q=80&w=2070&auto=format&fit=crop",
+      image: "images/la-paella.jpg",
       stadeId: "stade-larache",
       horaires: "Tous les jours de 12h à 22h",
       telephone: "+212 539 91 33 21"
@@ -206,7 +206,7 @@ export interface Restaurant {
       adresse: "Corniche de Larache, Larache",
       distance: "15 minutes à pied",
       note: 4.3,
-      image: "https://images.unsplash.com/photo-1508424897381-4fd8755e4b7a?q=80&w=2070&auto=format&fit=crop",
+      image: "images/miami.jpg",
       stadeId: "stade-larache",
       horaires: "Tous les jours de 11h à 23h",
       telephone: "+212 539 91 89 45"

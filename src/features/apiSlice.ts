@@ -17,10 +17,13 @@ export const fetchStades = createAsyncThunk('api/fetchStades', async () => {
   return response.data;
 });
 
-export const fetchHotels = createAsyncThunk('api/fetchHotels', async () => {
-  const response = await API.get<Hotel[]>('/api/hotels');
-  return response.data;
-});
+export const fetchHotels = createAsyncThunk(
+  'api/fetchHotels',
+  async () => {
+    const response = await axios.get('http://127.0.0.1:8000/api/hotels');
+    return response.data.data || response.data;
+  }
+);
 
 export const fetchMatches = createAsyncThunk('api/fetchMatches', async () => {
   const response = await API.get<Match[]>('/api/matches');
@@ -32,10 +35,13 @@ export const fetchEquipes = createAsyncThunk('api/fetchEquipes', async () => {
   return response.data;
 });
 
-export const fetchRestaurants = createAsyncThunk('api/fetchRestaurants', async () => {  
-  const response = await API.get<Restaurant[]>('/api/restaurants');
-  return response.data;
-});
+export const fetchRestaurants = createAsyncThunk(
+  'api/fetchRestaurants',
+  async () => {
+    const response = await axios.get('http://127.0.0.1:8000/api/restaurants');
+    return response.data.data || response.data;
+  }
+);
 
 // Create a slice
 const apiSlice = createSlice({

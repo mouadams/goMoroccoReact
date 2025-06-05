@@ -1,14 +1,13 @@
-
-
-
 export interface Stade {
-    id: number;
+    id: string;
     nom: string;
     ville: string;
     capacite: number;
     image: string;
     description: string;
-    latitude: number;
-    longitude: number;
-    annee_construction: number;
-  }
+    coordonnees: {
+        lat: number;
+        lng: number;
+    };
+    anneeConstruction: number;
+}

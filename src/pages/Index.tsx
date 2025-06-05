@@ -1,25 +1,37 @@
-import React , { useEffect }from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
-import MatchCard from '@/components/MatchCard';
-import StadeCard from '@/components/StadeCard';
-import EquipeCard from '@/components/EquipeCard';
-// import { matches } from '@/data/matches';
-// import { stades } from '@/data/stades';
-// import { equipes } from '@/data/equipes';
-
-// import { matches , stades , equipes } from '../api';
-import { fetchStades , fetchEquipes, fetchMatches} from '../features/apiSlice';
+import CanCountdown from '@/components/CanCountdown';
+import MoroccoMap from '@/components/MoroccoMap';
+import RandomStades from '@/components/RandomStades';
+import RandomMatches from '@/components/RandomMatches';
+import RandomEquipes from '@/components/RandomEquipes';
+import GroupSelector from '@/components/GroupSelector';
+import StadeHotels from '@/components/StadeHotels';
+import StadeRestaurants from '@/components/StadeRestaurants';
+//import { useLanguage } from '@/hooks/use-language';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Hotel from '@/components/icons/Hotel';
+import Utensils from '@/components/icons/Utensils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
+import { fetchStades, fetchEquipes, fetchMatches, fetchHotels, fetchRestaurants } from '../features/apiSlice';
 
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.22, 1, 0.36, 1]
+    }
+  }
+};
 
-const container = {
+const staggerContainer = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -30,152 +42,139 @@ const container = {
   }
 };
 
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
-};
-
 const Index = () => {
+//  const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
-  const { stades, equipes, matches, loading, error } = useSelector((state: RootState) => state.api);
+  const { stades, equipes, matches, hotels, restaurants, loading, error } = useSelector((state: RootState) => state.api);
+  const defaultStadeId = String(stades[0]?.id || '');
+  
+  const [key, setKey] = React.useState(0);
 
+  React.useEffect(() => {
+    if (!stades.length) dispatch(fetchStades());
+    if (!equipes.length) dispatch(fetchEquipes());
+    if (!matches.length) dispatch(fetchMatches());
+    if (!hotels.length) dispatch(fetchHotels());
+    if (!restaurants.length) dispatch(fetchRestaurants());
+  }, [dispatch, stades.length, equipes.length, matches.length, hotels.length, restaurants.length]);
 
-   useEffect(() => {
-      if (!stades.length) dispatch(fetchStades());
-      if (!equipes.length) dispatch(fetchEquipes());
-      if (!matches.length) dispatch(fetchMatches());
-    }, [dispatch, stades.length, equipes.length, matches.length]);
-  
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setKey(prevKey => prevKey + 1);
+    }, 10000);
 
-  
-  // Récupérer les 3 prochains matchs
-  const prochainsMatchs = [...matches]
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 3);
-  
-  // Récupérer 3 stades aléatoirement
-  const stadesAffichés = [...stades].sort(() => 0.5 - Math.random()).slice(0, 3);
-  
-  // Récupérer 6 équipes aléatoirement
-  const equipesAffichées = [...equipes].sort(() => 0.5 - Math.random()).slice(0, 6);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="flex flex-col min-h-screen overflow-x-hidden bg-background">
       <Navbar />
       
       <main className="flex-grow">
-        <Hero />
+        <section className="relative overflow-hidden">
+          <Hero />
+        </section>
         
-        {/* Section Prochains Matchs */}
-        <section className="py-16 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-          <div className="container mx-auto px-6 md:px-10">
+        <motion.section 
+          initial="hidden"
+          animate="show"
+          variants={fadeInUp}
+          className="relative overflow-hidden"
+        >
+          <CanCountdown />
+        </motion.section>
+        
+        <section className="py-10 bg-white dark:bg-gray-900">
+          <div className="container px-6 mx-auto md:px-10">
             <motion.div
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-100px" }}
-              variants={container}
-              className="max-w-7xl mx-auto"
+              variants={staggerContainer}
+              className="mx-auto max-w-7xl"
             >
-              <motion.div variants={item} className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Prochains Matchs</h2>
-                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Retrouvez les prochains matchs de la Coupe d'Afrique des Nations 2025 qui se tiendra au Maroc.
+              <motion.div variants={fadeInUp} className="mb-8 text-center">
+                <span className="inline-block px-3 py-1 mb-3 text-sm font-medium bg-green-100 rounded-full dark:bg-green-900/30 text-caf-green">
+                  {('Découvrez le Maroc')}
+                </span>
+                <h2 className="mb-4 text-3xl font-bold text-transparent md:text-4xl bg-gradient-to-r from-caf-green via-emerald-600 to-caf-red bg-clip-text">
+                  {('Stades de la CAN 2025')}
+                </h2>
+                <p className="max-w-2xl mx-auto text-gray-600 dark:text-gray-300">
+                  {('Découvrez les stades marocains qui accueilleront la compétition sur cette carte interactive.')}
                 </p>
               </motion.div>
               
-              <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {prochainsMatchs.map(match => (
-                  <MatchCard key={match.id} match={match} />
-                ))}
-              </motion.div>
-              
-              <motion.div variants={item} className="mt-12 text-center">
-                <Button asChild variant="outline" size="lg" className="rounded-full">
-                  <Link to="/matches">
-                    Voir tous les matchs
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+              <motion.div variants={fadeInUp} className="p-6 overflow-hidden bg-white shadow-xl dark:bg-gray-800 rounded-2xl">
+                <MoroccoMap />
               </motion.div>
             </motion.div>
           </div>
         </section>
         
-        {/* Section Stades */}
-        <section className="py-16">
-          <div className="container mx-auto px-6 md:px-10">
+        <section className="py-10 bg-gray-50 dark:bg-gray-800/50">
+          <div className="container px-6 mx-auto md:px-10">
             <motion.div
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-100px" }}
-              variants={container}
-              className="max-w-7xl mx-auto"
+              variants={staggerContainer}
+              className="mx-auto max-w-7xl"
             >
-              <motion.div variants={item} className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Stades de la compétition</h2>
-                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Découvrez les magnifiques stades marocains qui accueilleront les matchs de la CAN 2025.
-                </p>
+              <motion.div variants={fadeInUp} className="mb-10 text-center">
+                <span className="inline-block px-3 py-1 mb-3 text-sm font-medium bg-red-100 rounded-full dark:bg-red-900/30 text-caf-red">
+                  {('Tout sur la CAN')}
+                </span>
+                <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+                  {('Explorez la CAN 2025')}
+                </h2>
               </motion.div>
               
-              <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {stadesAffichés.map(stade => (
-                  <StadeCard key={stade.id} stade={stade} />
-                ))}
-              </motion.div>
+              <h3 className="mb-6 text-2xl font-bold text-center">Stades</h3>
+              <RandomStades key={`stades-${key}`} className="mb-16" />
               
-              <motion.div variants={item} className="mt-12 text-center">
-                <Button asChild variant="outline" size="lg" className="rounded-full">
-                  <Link to="/stades">
-                    Découvrir tous les stades
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </motion.div>
-            </motion.div>
-          </div>
-        </section>
-        
-        {/* Section Équipes */}
-        <section className="py-16 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-          <div className="container mx-auto px-6 md:px-10">
-            <motion.div
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={container}
-              className="max-w-7xl mx-auto"
-            >
-              <motion.div variants={item} className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Équipes participantes</h2>
-                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  24 équipes africaines s'affrontent pour remporter le prestigieux trophée de la Coupe d'Afrique des Nations.
-                </p>
-              </motion.div>
+              <h3 className="mb-6 text-2xl font-bold text-center">Lieux à proximité des stades</h3>
+              <Tabs defaultValue="hotels" className="mb-16">
+                <TabsList className="w-full max-w-xl p-1 mx-auto mb-8 bg-white rounded-lg shadow-lg dark:bg-gray-800">
+                  <TabsTrigger 
+                    value="hotels" 
+                    className="w-full data-[state=active]:bg-primary data-[state=active]:text-white"
+                  >
+                    <div className="flex items-center justify-center gap-2 py-2">
+                      <Hotel className="w-5 h-5" />
+                      <span className="font-medium">Hôtels</span>
+                    </div>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="restaurants"
+                    className="w-full data-[state=active]:bg-primary data-[state=active]:text-white"
+                  >
+                    <div className="flex items-center justify-center gap-2 py-2">
+                      <Utensils className="w-5 h-5" />
+                      <span className="font-medium">Restaurants</span>
+                    </div>
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="hotels">
+                  <StadeHotels hotels={hotels} stadeId={defaultStadeId} />
+                </TabsContent>
+                
+                <TabsContent value="restaurants">
+                  <StadeRestaurants restaurants={restaurants} stadeId={defaultStadeId} />
+                </TabsContent>
+              </Tabs>
               
-              <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {equipesAffichées.map(equipe => (
-                  <EquipeCard key={equipe.id} equipe={equipe} />
-                ))}
-              </motion.div>
+              <h3 className="mb-6 text-2xl font-bold text-center">Prochains matchs</h3>
+              <RandomMatches key={`matches-${key}`} className="mb-16" />
               
-              <motion.div variants={item} className="mt-12 text-center">
-                <Button asChild variant="outline" size="lg" className="rounded-full">
-                  <Link to="/equipes">
-                    Voir toutes les équipes
-                    <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </motion.div>
+              <h3 className="mb-6 text-2xl font-bold text-center">Équipes participantes</h3>
+              <RandomEquipes key={`equipes-${key}`} className="mb-16" />
+              
+              <GroupSelector className="mb-10" />
             </motion.div>
           </div>
         </section>

@@ -9,7 +9,10 @@ import { AppDispatch, RootState } from "@/store";
 import { createMatch, updateMatch, deleteMatch } from "@/redux/matchesSlice";
 import { fetchMatches } from "@/features/apiSlice";
 import { useToast } from "@/hooks/use-toast";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
+// Assuming Match and other types are already defined correctly
 type MatchFormValues = {
   equipe1: string;
   equipe2: string;
@@ -36,17 +39,21 @@ interface MatchFormDialogProps {
 
 interface Match {
   id?: string;
-  stadeId: number;
-  equipe1: number;
-  equipe2: number;
+  equipe1: string;
+  equipe2: string;
   date: string;
   heure: string;
+  stadeId: string;
   phase: string;
   groupe?: string;
   score1?: number;
   score2?: number;
-  termine: boolean | number;
+  termine: boolean;
 }
+
+
+
+
 
 export function MatchFormDialog({
   isOpen,
@@ -75,24 +82,41 @@ export function MatchFormDialog({
   const equipes = useSelector((state: RootState) => state.api.equipes);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (defaultValues) {
+      setFormValues({
+        equipe1: defaultValues.equipe1?.toString() || "",
+        equipe2: defaultValues.equipe2?.toString() || "",
+        stadeId: defaultValues.stadeId?.toString() || "",
+        date: defaultValues.date || new Date().toISOString().split("T")[0],
+        heure: defaultValues.heure || "17:00",
+        phase: defaultValues.phase || "Groupe",
+        groupe: defaultValues.groupe || "A",
+        score1: defaultValues.score1 ?? null,
+        score2: defaultValues.score2 ?? null,
+        termine: Boolean(defaultValues.termine),
+      });
+    }
+  }, [defaultValues]);
+
   const convertTo24Hour = (timeString: string): string => {
     if (!timeString) return "17:00";
-    
+
     // If already in 24-hour format (contains :)
     if (timeString.includes(':') && !timeString.includes('PM') && !timeString.includes('AM')) {
       return timeString;
     }
-    
+
     // Handle 12-hour format conversion
     const [time, modifier] = timeString.split(' ');
     let [hours, minutes] = time.split(':');
-    
+
     if (modifier === 'PM' && hours !== '12') {
       hours = String(parseInt(hours, 10) + 12);
     } else if (modifier === 'AM' && hours === '12') {
       hours = '00';
     }
-    
+
     return `${hours.padStart(2, '0')}:${(minutes || '00')}`;
   };
 
@@ -102,7 +126,7 @@ export function MatchFormDialog({
       ...prev,
       [field]: value
     }));
-    
+
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -113,7 +137,7 @@ export function MatchFormDialog({
 
   const validate = (): boolean => {
     const newErrors: MatchFormErrors = {};
-    
+
     if (!formValues.equipe1) newErrors.equipe1 = "Veuillez sélectionner une équipe.";
     if (!formValues.equipe2) newErrors.equipe2 = "Veuillez sélectionner une équipe.";
     if (formValues.equipe1 === formValues.equipe2 && formValues.equipe1 !== "") {
@@ -126,91 +150,70 @@ export function MatchFormDialog({
     if (formValues.phase === "Groupe" && !formValues.groupe) {
       newErrors.groupe = "Veuillez sélectionner un groupe.";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validate()) return;
-    
+
     setIsSubmitting(true);
     try {
-      // Format date to YYYY-MM-DD
       const formattedDate = new Date(formValues.date).toISOString().split('T')[0];
-      // Format time to 24-hour
       const formattedTime = convertTo24Hour(formValues.heure);
 
-      // Before conversion - log values
-      console.log("Form values before conversion:", {
-        stadeId: formValues.stadeId,
-        equipe1: formValues.equipe1,
-        equipe2: formValues.equipe2,
-        typeStadeId: typeof formValues.stadeId,
-        typeEquipe1: typeof formValues.equipe1,
-        typeEquipe2: typeof formValues.equipe2
-      });
-
-      // Get the numeric IDs using our mappings
       const stadeId = Number(formValues.stadeId);
       const equipe1Id = Number(formValues.equipe1);
       const equipe2Id = Number(formValues.equipe2);
 
-      // After conversion - check for NaN
-      console.log("Values after mapping lookup:", {
-        stadeId,
-        equipe1Id,
-        equipe2Id,
-        isNaN_stadeId: isNaN(Number(stadeId)),
-        isNaN_equipe1: isNaN(Number(equipe1Id)),
-        isNaN_equipe2: isNaN(Number(equipe2Id))
-      });
-
-      // Find actual equipes and stade objects for better error messages
-      const stade = stades.find(s => Number(s.id) === stadeId);
-      const equipe1Obj = equipes.find(e => Number(e.id) === equipe1Id);
-      const equipe2Obj = equipes.find(e => Number(e.id) === equipe2Id);
-
-      // Verify values are valid numbers before submitting
-      if (!stadeId || isNaN(Number(stadeId))) {
+      if (isNaN(stadeId)) {
         throw new Error(`Stade invalide: ${formValues.stadeId}`);
       }
-      if (!equipe1Id || isNaN(Number(equipe1Id))) {
+      if (isNaN(equipe1Id)) {
         throw new Error(`Équipe 1 invalide: ${formValues.equipe1}`);
       }
-      if (!equipe2Id || isNaN(Number(equipe2Id))) {
+      if (isNaN(equipe2Id)) {
         throw new Error(`Équipe 2 invalide: ${formValues.equipe2}`);
       }
 
       // Prepare data for API submission
-      const apiMatchData = {
-        stadeId: stadeId,
-        equipe1: equipe1Id,
-        equipe2: equipe2Id,
+      const apiMatchData: Partial<Match> = {
+        stadeId: String(stadeId),
+        equipe1: String(equipe1Id),
+        equipe2: String(equipe2Id),
         date: formattedDate,
         heure: formattedTime,
         phase: formValues.phase,
-        termine: formValues.termine ? 1 : 0,
+        termine: Boolean(formValues.termine),
         groupe: formValues.phase === "Groupe" ? (formValues.groupe || "A") : undefined,
         score1: formValues.termine ? (formValues.score1 ?? 0) : undefined,
         score2: formValues.termine ? (formValues.score2 ?? 0) : undefined,
       };
 
       console.log("Submitting match data:", apiMatchData);
-      
+
       if (editingMatchId) {
-        await dispatch(updateMatch({ id: editingMatchId, matchData: apiMatchData as any })).unwrap();
+        // Dispatch updateMatch and then fetchMatches
+        await dispatch(updateMatch({
+          id: editingMatchId,
+          matchData: apiMatchData
+        })).unwrap();
+        toast({
+          title: "Match mis à jour",
+          description: "Le match a été mis à jour avec succès.",
+        });
       } else {
+        // For creation, make sure the type aligns with createMatch expected payload
         await dispatch(createMatch(apiMatchData as any)).unwrap();
-        dispatch(fetchMatches());
         toast({
           title: "Match ajouté",
           description: "Le match a été ajouté avec succès.",
         });
       }
-      
+      dispatch(fetchMatches()); // Fetch matches after both create and update
       setFormValues(defaultValues);
       onClose();
     } catch (error: any) {
@@ -219,15 +222,19 @@ export function MatchFormDialog({
         console.log("Validation errors:", error.response.data.errors);
         const apiErrors = error.response.data.errors;
         const formattedErrors: MatchFormErrors = {};
-        
+
         Object.keys(apiErrors).forEach(key => {
           const normalizedKey = key.replace(/_id$/, '') as keyof MatchFormValues;
           formattedErrors[normalizedKey] = apiErrors[key][0];
         });
-        
+
         setErrors(formattedErrors);
       } else {
-        alert(`Une erreur s'est produite: ${error.message || JSON.stringify(error)}`);
+        toast({
+          title: "Erreur",
+          description: `Une erreur s'est produite: ${error.message || JSON.stringify(error)}`,
+          variant: "destructive",
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -310,8 +317,8 @@ export function MatchFormDialog({
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label className="text-sm font-medium">Date</label>
-              <Input 
-                type="date" 
+              <Input
+                type="date"
                 value={formValues.date}
                 onChange={(e) => handleChange("date", e.target.value)}
                 className={errors.date ? "border-red-500" : ""}
@@ -321,8 +328,8 @@ export function MatchFormDialog({
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Heure</label>
-              <Input 
-                type="time" 
+              <Input
+                type="time"
                 value={formValues.heure}
                 onChange={(e) => handleChange("heure", e.target.value)}
                 className={errors.heure ? "border-red-500" : ""}
@@ -396,8 +403,8 @@ export function MatchFormDialog({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Score Équipe 1</label>
-                <Input 
-                  type="number" 
+                <Input
+                  type="number"
                   min="0"
                   value={formValues.score1 === null ? "" : formValues.score1}
                   onChange={(e) => {
@@ -409,7 +416,7 @@ export function MatchFormDialog({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Score Équipe 2</label>
-                <Input 
+                <Input
                   type="number"
                   min="0"
                   value={formValues.score2 === null ? "" : formValues.score2}
@@ -432,37 +439,37 @@ export function MatchFormDialog({
             </DialogFooter>
           </form>
 
-          {editingMatchId && (
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={async () => {
-                if (window.confirm("Êtes-vous sûr de vouloir supprimer ce match ?")) {
-                  setIsSubmitting(true);
-                  try {
-                    await dispatch(deleteMatch(editingMatchId)).unwrap();
-                    dispatch(fetchMatches());
-                    toast({
-                      title: "Match supprimé",
-                      description: "Le match a été supprimé avec succès.",
-                    });
-                    onClose();
-                  } catch (error) {
-                    toast({
-                      title: "Erreur",
-                      description: "Une erreur s'est produite lors de la suppression.",
-                      variant: "destructive",
-                    });
-                  } finally {
-                    setIsSubmitting(false);
-                  }
+        {editingMatchId && (
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={async () => {
+              if (window.confirm("Êtes-vous sûr de vouloir supprimer ce match ?")) {
+                setIsSubmitting(true);
+                try {
+                  await dispatch(deleteMatch(editingMatchId)).unwrap();
+                  dispatch(fetchMatches());
+                  toast({
+                    title: "Match supprimé",
+                    description: "Le match a été supprimé avec succès.",
+                  });
+                  onClose();
+                } catch (error) {
+                  toast({
+                    title: "Erreur",
+                    description: "Une erreur s'est produite lors de la suppression.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsSubmitting(false);
                 }
-              }}
-              disabled={isSubmitting}
-            >
-              Supprimer
-            </Button>
-          )}
+              }
+            }}
+            disabled={isSubmitting}
+          >
+            Supprimer
+          </Button>
+        )}
       </DialogContent>
     </Dialog>
   );
